@@ -1,0 +1,298 @@
+{
+   "checksum": "7b81db91af7ea2fe45d02f14ccc98950",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "13348910964956914",
+            "date_last_used": "13359033507738042",
+            "guid": "9e01af03-d81e-48cf-8ab2-609d36513ae7",
+            "id": "29",
+            "name": "Fiverr / Search Results for 'website development'",
+            "type": "url",
+            "url": "https://www.fiverr.com/search/gigs?query=website%20development&source=top-bar&acmpl=1&search_in=everywhere&search-autocomplete-original-term=&search-autocomplete-available=true&search-autocomplete-type=popular&search-autocomplete-position=3&ref_ctx_id=efcd1e93a04f4ae5b661eed545ecfd46&search-autocomplete-sub-type=local"
+         }, {
+            "date_added": "13344602723491081",
+            "date_last_used": "0",
+            "guid": "1817a2ed-c187-4bea-baae-1301e9d08c11",
+            "id": "30",
+            "name": "Upwork",
+            "type": "url",
+            "url": "https://www.upwork.com/nx/find-work/best-matches"
+         }, {
+            "date_added": "13348942562286525",
+            "date_last_used": "13361475292563691",
+            "guid": "447a08df-a35e-499e-8faa-9f3ac33c9f4c",
+            "id": "31",
+            "name": "ChatGPT",
+            "type": "url",
+            "url": "https://chat.openai.com/"
+         }, {
+            "date_added": "13334579471747910",
+            "date_last_used": "0",
+            "guid": "6e51c52a-bc84-4e4a-ab3c-ff216eef68d4",
+            "id": "32",
+            "name": "Payoneer: Companies you work with",
+            "type": "url",
+            "url": "https://myaccount.payoneer.com/ma/businessnetwork/fundingsources"
+         }, {
+            "date_added": "13337888733884900",
+            "date_last_used": "0",
+            "guid": "b08f1746-616e-4c75-9ea2-77545e5beb3c",
+            "id": "33",
+            "name": "Freelancer",
+            "type": "url",
+            "url": "https://www.freelancer.com/dashboard"
+         }, {
+            "date_added": "13348918720728620",
+            "date_last_used": "0",
+            "guid": "32bf673b-48a7-4cb4-bfe2-a6500f266320",
+            "id": "34",
+            "name": "Sultan Muhammad Essa-514 Portfolio",
+            "type": "url",
+            "url": "https://muhammadessa-514.github.io/My-Personal-Portfolio/"
+         } ],
+         "date_added": "13408394998305722",
+         "date_last_used": "0",
+         "date_modified": "13348942562286525",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Bookmarks bar",
+         "type": "folder"
+      },
+      "other": {
+         "children": [ {
+            "date_added": "13345584643661133",
+            "date_last_used": "0",
+            "guid": "4b8e09c2-fc38-44e1-b72b-a85dbafafcaf",
+            "id": "6",
+            "name": "bingo",
+            "type": "url",
+            "url": "https://bingotingo.com/best-social-media-platforms/"
+         }, {
+            "date_added": "13359119225372109",
+            "date_last_used": "0",
+            "guid": "cdcf549a-562f-48cd-a73e-7fe61761ae94",
+            "id": "7",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Welcome to Clerk Docs",
+            "type": "url",
+            "url": "https://clerk.com/docs"
+         }, {
+            "date_added": "13359215596476106",
+            "date_last_used": "0",
+            "guid": "26bdc6c5-2584-4c50-bb99-96064e135a2c",
+            "id": "8",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Vape-me-up Dashboard -2",
+            "type": "url",
+            "url": "https://vapemeup-dash2.vercel.app/"
+         }, {
+            "date_added": "13325198902399425",
+            "date_last_used": "0",
+            "guid": "2ede1b3b-e1a8-4bb9-8ca0-4328681c6e6a",
+            "id": "9",
+            "name": "Welcome/Introduction Video | Coursera",
+            "type": "url",
+            "url": "https://www.coursera.org/learn/supervised-machine-learning-regression/lecture/TbnZi/welcome-introduction-video"
+         }, {
+            "date_added": "13345844555737230",
+            "date_last_used": "0",
+            "guid": "1bf106d1-f7a0-4233-b51b-4c5a7e7e5c44",
+            "id": "10",
+            "name": "Contact Information (Responses) - Google Sheets",
+            "type": "url",
+            "url": "https://docs.google.com/spreadsheets/d/1xVb08Luo2OTm9Pd-ckV4Sr6E5ChTH0WH-JUiA9FhRzo/edit?resourcekey&usp=forms_web_b#gid=1118105530"
+         }, {
+            "date_added": "13347827726057507",
+            "date_last_used": "0",
+            "guid": "de3a3fc2-4e16-4e8b-bcfc-369fefa7008e",
+            "id": "11",
+            "name": "Untitled design - Facebook Post proo",
+            "type": "url",
+            "url": "https://www.canva.com/design/DAF30dlZwcA/4QXtdn2kxrDe8W-6ns7gxQ/edit"
+         }, {
+            "date_added": "13347953001592892",
+            "date_last_used": "0",
+            "guid": "216758f0-56f2-435e-a80c-b999a0b6f31d",
+            "id": "12",
+            "name": "Welcome/Introduction Video - Introduction to Supervised Machine Learning and Linear Regression | Coursera",
+            "type": "url",
+            "url": "https://www.coursera.org/lecture/supervised-machine-learning-regression/welcome-introduction-video-TbnZi"
+         }, {
+            "date_added": "13348825448258999",
+            "date_last_used": "0",
+            "guid": "84d69067-1d2a-4b15-a52c-1cf2605c11ac",
+            "id": "13",
+            "name": "Blaze | The most powerful AI marketing platform ever invented",
+            "type": "url",
+            "url": "https://app.blaze.ai/signup"
+         }, {
+            "date_added": "13348825488848073",
+            "date_last_used": "0",
+            "guid": "80c5dc7d-1152-4cc9-9a53-7a8ee494ffc1",
+            "id": "14",
+            "name": "HIX.AI: Your Most Powerful, All-In-One AI Writing Copilot",
+            "type": "url",
+            "url": "https://hix.ai/"
+         }, {
+            "date_added": "13348827408789472",
+            "date_last_used": "0",
+            "guid": "272bdad6-6c09-4c99-a16b-a242d8dbbca9",
+            "id": "15",
+            "name": " GTmetrix  Dashboard |",
+            "type": "url",
+            "url": "https://gtmetrix.com/"
+         }, {
+            "date_added": "13354933912940821",
+            "date_last_used": "0",
+            "guid": "9d229621-7fab-47ca-88e5-eea672b7ff6d",
+            "id": "16",
+            "name": "(51) Muhammad Essa | LinkedIn",
+            "type": "url",
+            "url": "https://www.linkedin.com/in/muhammad-essa-0526b2271/?originalSubdomain=pk"
+         }, {
+            "date_added": "13355018217409077",
+            "date_last_used": "0",
+            "guid": "39ca7a71-1a54-4295-bd29-2c63c3a3ab3e",
+            "id": "17",
+            "name": "cpanel.infinityfree.com/panel/indexpl.php?id=6760baa189964bcc576e4c2b6cd6cf5864110c2c",
+            "type": "url",
+            "url": "https://cpanel.infinityfree.com/panel/indexpl.php?id=6760baa189964bcc576e4c2b6cd6cf5864110c2c"
+         }, {
+            "date_added": "13355245866289213",
+            "date_last_used": "0",
+            "guid": "7feb170f-0035-4730-b614-759a671160a6",
+            "id": "18",
+            "name": "GitHub",
+            "type": "url",
+            "url": "https://github.com/"
+         }, {
+            "date_added": "13356466178756093",
+            "date_last_used": "0",
+            "guid": "72982493-ffef-4c88-b967-6660cad24843",
+            "id": "19",
+            "name": "GitHub - Ja7ad/W3Schools: W3Schools Full Offline Version",
+            "type": "url",
+            "url": "https://github.com/Ja7ad/W3Schools"
+         }, {
+            "date_added": "13356612555500916",
+            "date_last_used": "0",
+            "guid": "2925cfcc-de69-4991-94eb-90717f826b6c",
+            "id": "20",
+            "name": "Home - Canva",
+            "type": "url",
+            "url": "https://www.canva.com/"
+         }, {
+            "date_added": "13359575522945841",
+            "date_last_used": "0",
+            "guid": "37bcb38a-c142-49f0-8510-7022afdf3c75",
+            "id": "21",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Gemini",
+            "type": "url",
+            "url": "https://gemini.google.com/app/ac83a3c1860c7289"
+         }, {
+            "date_added": "13359712570349569",
+            "date_last_used": "0",
+            "guid": "c738dd10-ff78-460c-a29d-0db24bed778d",
+            "id": "22",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "outline course",
+            "type": "url",
+            "url": "https://github.com/users/musiabehussain/projects/5/views/3"
+         }, {
+            "date_added": "13359812123949675",
+            "date_last_used": "0",
+            "guid": "f4147c56-ecc8-4f45-9d65-498a51182b19",
+            "id": "23",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "ixbet",
+            "type": "url",
+            "url": "https://1xlite-995900.top/en/othergames?product=849"
+         }, {
+            "date_added": "13359836400872687",
+            "date_last_used": "0",
+            "guid": "ee3768a9-beab-442e-9d77-1c82f47c74e4",
+            "id": "24",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "task 1-9may-2024",
+            "type": "url",
+            "url": "http://127.0.0.1:5500/task%201-9may-2024.html"
+         }, {
+            "date_added": "13360337369156014",
+            "date_last_used": "0",
+            "guid": "1f1efd74-90e3-45ea-a251-c02a9b8ba345",
+            "id": "25",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Gemini",
+            "type": "url",
+            "url": "https://gemini.google.com/app"
+         }, {
+            "date_added": "13360425126379549",
+            "date_last_used": "0",
+            "guid": "f08e45b5-9aca-41af-9fe3-9f2c81913c30",
+            "id": "26",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "appwrite",
+            "type": "url",
+            "url": "https://cloud.appwrite.io/console/organization-66475794000b97e3199d"
+         }, {
+            "date_added": "13361286017343698",
+            "date_last_used": "0",
+            "guid": "d287c231-6481-42a2-ae73-09f125cc9178",
+            "id": "27",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Dashboard ‹ — WordPress",
+            "type": "url",
+            "url": "https://whatismyipadd.com/wp-admin/"
+         }, {
+            "date_added": "13361371934334963",
+            "date_last_used": "0",
+            "guid": "03d5cdf1-94a3-4b8e-bedc-368df9fad058",
+            "id": "28",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "picture creattion from scritch Scribble ",
+            "type": "url",
+            "url": "https://scribblediffusion.com/"
+         } ],
+         "date_added": "13408394998305722",
+         "date_last_used": "0",
+         "date_modified": "13361371934334963",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Other bookmarks",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13408394998305722",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobile bookmarks",
+         "type": "folder"
+      }
+   },
+   "version": 1
+}

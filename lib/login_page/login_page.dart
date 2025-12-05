@@ -63,7 +63,13 @@ class _LoginPageState extends State<LoginPage> {
                 .doc(user.uid)
                 .get();
 
-        String role = userDoc.exists ? userDoc.get('role') : 'Course Teacher';
+        String role = 'student'; // default safe value
+        if (userDoc.exists) {
+          final data = userDoc.data() as Map<String, dynamic>?;
+          if (data != null && data.containsKey('role')) {
+            role = data['role'].toString().trim().toLowerCase();
+          }
+        }
 
         print("Login successful. Navigating to Dashboard...");
 

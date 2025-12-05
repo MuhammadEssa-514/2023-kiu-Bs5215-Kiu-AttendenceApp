@@ -43,18 +43,18 @@ class _LoginPageState extends State<LoginPage> {
         User user = userCredential.user!;
 
         // Check if email is verified
-        if (!user.emailVerified) {
-          setState(() {
-            _isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Please verify your email to continue."),
-            ),
-          );
-          await FirebaseAuth.instance.signOut();
-          return;
-        }
+        // if (!user.emailVerified) {
+        //   setState(() {
+        //     _isLoading = false;
+        //   });
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     const SnackBar(
+        //       content: Text("Please verify your email to continue."),
+        //     ),
+        //   );
+        //   await FirebaseAuth.instance.signOut();
+        //   return;
+        // }
 
         // Fetch user role from Firestore
         DocumentSnapshot userDoc =
@@ -137,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: 50),
                 Center(
                   child: Text(
-                    "Greetings!",
+                    "Welcome To Kiu Smart Hazarii",
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,

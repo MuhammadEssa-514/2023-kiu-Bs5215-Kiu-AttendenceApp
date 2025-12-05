@@ -87,7 +87,7 @@ class LoginPageWrapper extends StatelessWidget {
           // User is signed in
           User user = snapshot.data!;
           // Check if email is verified
-          if (user.emailVerified) {
+          if (true) {
             // Fetch user role from Firestore
             return FutureBuilder<DocumentSnapshot>(
               future:

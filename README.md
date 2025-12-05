@@ -1,12 +1,12 @@
-# SAMS - Student Attendance Management System
+# Muhammad Essa - Student Attendance Management System
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-SAMS is a cross-platform mobile application built using **Flutter** and **Firebase**, designed to help teachers manage student attendance efficiently. Initially developed for the **CSE-22 Series** at **Rajshahi University of Engineering and Technology (RUET)** under the guidance of **[Prof. Dr. Boshir Ahmed](https://www.cse.ruet.ac.bd/boshir)**, this app aims to streamline academic attendance management through a simple and scalable system.
+Muhammad Essa is a cross-platform mobile application built using **Flutter** and **Firebase**, designed to help teachers manage student attendance efficiently. Initially developed for the **CSE-22 Series** at **Karakoram international university gilgit** under the guidance of **[Prof Mushaid Hussain]**, this app aims to streamline academic attendance management through a simple and scalable system.
 
 ---
 
-**SAMS** is a mobile application designed for managing student attendance in educational institutions. It supports teachers' login and offers features for attendance tracking. Built with Flutter and Firebase, this system helps streamline attendance management. Initially built for Rajshahi University of Engineering and Technology (RUET), specifically for the CSE-22 series department.
+**Muhammad Essa** is a mobile application designed for managing student attendance in educational institutions. It supports teachers' login and offers features for attendance tracking. Built with Flutter and Firebase, this system helps streamline attendance management.
 
 ## Features
 
@@ -24,7 +24,7 @@ SAMS is a cross-platform mobile application built using **Flutter** and **Fireba
 
 ## App Preview
 
-Here is a preview of the main screens and features of the SAMS application.
+Here is a preview of the main screens and features of the Muhammad Essa application.
 
 | Signup | Login | Dashboard | Take Attendance | Generate Reports |
 |:---:|:---:|:---:|:---:|:---:|
@@ -60,8 +60,8 @@ Here is a preview of the main screens and features of the SAMS application.
 
 ```bash
 # Clone the repository
-git clone https://github.com/najat-ttt/SAMS_Basic.git
-cd SAMS_Basic
+git clone https://github.com/najat-ttt/Muhammad Essa_Basic.git
+cd Muhammad Essa_Basic
 
 # Install dependencies
 flutter pub get
@@ -131,7 +131,7 @@ See the [LICENSE](LICENSE) file for more details.
 
 ## Contact
 
-**[Sheikh Siam Najat](www.linkedin.com/in/sheikh-siam-najat-82584b281)**
+**[Muhammad Essa](www.linkedin.com/in/muhammadessa514)**
 
 **ID: 2203146**
 

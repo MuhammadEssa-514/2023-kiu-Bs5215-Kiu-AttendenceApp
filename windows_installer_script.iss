@@ -1,7 +1,5 @@
-#define MyAppName "SAMS"
+#define MyAppName "MuhammadEssa"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "Najat@CSE_RUET"
-#define MyAppURL "https://github.com/najat-ttt"
 #define MyAppExeName "untitled.exe"
 
 [Setup]
@@ -20,7 +18,7 @@ DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=D:\Flutter Projects\untitled\installer_output
-OutputBaseFilename=SAMS_Installer
+OutputBaseFilename=MuhammadEssa_Installer
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern

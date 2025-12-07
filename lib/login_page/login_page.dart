@@ -2,334 +2,173 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../profile_page/dashboard_page.dart';
-import 'signup_page.dart';
-import 'forgot_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
-
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool _isPasswordVisible = false;
-  bool _isLoading = false; // Loading state
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+  final emailCtrl = TextEditingController();
+  final passCtrl = TextEditingController();
+  bool loading = false;
 
   Future<void> _login() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+    setState(() => loading = true);
+    try {
+      UserCredential uc = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: emailCtrl.text.trim(),
+            password: passCtrl.text.trim(),
+          );
 
-      try {
-        // Sign in with email and password
-        UserCredential userCredential = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(
-              email: _emailController.text.trim(),
-              password: _passwordController.text.trim(),
-            );
+      DocumentSnapshot doc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uc.user!.uid)
+              .get();
 
-        User user = userCredential.user!;
-
-        // Check if email is verified
-        // if (!user.emailVerified) {
-        //   setState(() {
-        //     _isLoading = false;
-        //   });
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     const SnackBar(
-        //       content: Text("Please verify your email to continue."),
-        //     ),
-        //   );
-        //   await FirebaseAuth.instance.signOut();
-        //   return;
-        // }
-
-        // Fetch user role from Firestore
-        DocumentSnapshot userDoc =
-            await FirebaseFirestore.instance
-                .collection('users')
-                .doc(user.uid)
-                .get();
-
-        String role = 'student'; // default safe value
-        if (userDoc.exists) {
-          final data = userDoc.data() as Map<String, dynamic>?;
-          if (data != null && data.containsKey('role')) {
-            role = data['role'].toString().trim().toLowerCase();
+      String userRole = "student"; // default fallback
+      String? rollno;
+      if (doc.exists) {
+        var data = doc.data() as Map<String, dynamic>;
+        String? firebaseRole = data['role'] as String?;
+        rollno = data['rollno']?.toString();
+        if (firebaseRole != null) {
+          String cleaned = firebaseRole.toLowerCase().trim();
+          if (cleaned == "teacher" || cleaned == "admin") {
+            userRole = "teacher";
+          } else {
+            userRole = "student";
           }
         }
+      }
+      print("USER ROLE FROM FIRESTORE: $userRole");
 
-        print("Login successful. Navigating to Dashboard...");
-
-        // Navigate to DashboardPage
+      if (mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder:
-                (context) => DashboardPage(
-                  name: user.displayName ?? "User",
-                  email: user.email ?? "",
-                  role: role,
+                (_) => DashboardPage(
+                  name: uc.user!.displayName ?? "User",
+                  email: uc.user!.email!,
+                  role: userRole,
+                  rollno: rollno,
                 ),
           ),
         );
-      } on FirebaseAuthException catch (e) {
-        String errorMessage;
-        switch (e.code) {
-          case 'user-not-found':
-            errorMessage = "No user found with this email.";
-            break;
-          case 'wrong-password':
-            errorMessage = "Incorrect password. Please try again.";
-            break;
-          case 'invalid-email':
-            errorMessage = "The email address is not valid.";
-            break;
-          default:
-            errorMessage = "An error occurred: ${e.message}";
-        }
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(errorMessage)));
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("An unexpected error occurred: $e")),
-        );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
       }
-    } else {
-      print("Form is invalid. Please check the fields.");
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Login Failed: $e")));
     }
+    setState(() => loading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 50),
-                Center(
-                  child: Text(
-                    "Attendance System of \n Karakoram Internation University",
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(height: 50),
-                Center(
-                  child: Text(
-                    "Welcome To Kiu Smart Hazarii",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.cyan[900], // Replaced hex code
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    "Please login to continue...",
-                    style: TextStyle(fontSize: 18, color: Colors.blueGrey),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(height: 50),
-                _buildEmailField(),
-                SizedBox(height: 25),
-                _buildPasswordField(),
-                SizedBox(height: 25),
-                _buildLoginButton(),
-                SizedBox(height: 10),
-                _buildForgotPasswordButton(),
-                SizedBox(height: 10),
-                // _buildSignupButton(),
-              ],
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0A1D56), Color(0xFF1E40AF)],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmailField() {
-    return Center(
-      child: Material(
-        elevation: 0.5,
-        borderRadius: BorderRadius.circular(12.0),
-        child: SizedBox(
-          width: 500,
-          child: TextFormField(
-            controller: _emailController,
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.email_outlined, color: Colors.blueGrey),
-              labelStyle: TextStyle(color: Colors.blueGrey, fontSize: 15),
-              labelText: "Email",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide.none,
+        child: Center(
+          child: Card(
+            margin: const EdgeInsets.all(20),
+            elevation: 20,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(40),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 140,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFFFFD700),
+                        width: 7,
+                      ),
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        "assets/images/kiulogo.png",
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  const Text(
+                    "KIU Smart Haziri",
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0A1D56),
+                    ),
+                  ),
+                  const Text(
+                    "Karakoram International University",
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 40),
+                  TextField(
+                    controller: emailCtrl,
+                    decoration: InputDecoration(
+                      labelText: "Email",
+                      prefixIcon: const Icon(Icons.email),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: passCtrl,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: "Password",
+                      prefixIcon: const Icon(Icons.lock),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFD700),
+                      ),
+                      onPressed: loading ? null : _login,
+                      child:
+                          loading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : const Text(
+                                "LOGIN",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your email';
-              }
-              if (!RegExp(
-                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-              ).hasMatch(value)) {
-                return 'Please enter a valid email';
-              }
-              return null;
-            },
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return Center(
-      child: Material(
-        elevation: 0.5,
-        borderRadius: BorderRadius.circular(12.0),
-        child: StatefulBuilder(
-          builder: (context, setState) {
-            return SizedBox(
-              width: 500,
-              child: TextFormField(
-                controller: _passwordController,
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.lock_outline_rounded,
-                    color: Colors.blueGrey,
-                  ),
-                  labelStyle: TextStyle(color: Colors.blueGrey, fontSize: 15),
-                  labelText: "Password",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                    borderSide: BorderSide.none,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      color: Colors.blueGrey,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 15.0),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoginButton() {
-    return Center(
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _login,
-        style: ElevatedButton.styleFrom(
-          elevation: 2.0,
-          fixedSize: Size(150, 50),
-          alignment: Alignment.center,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-        ),
-        child:
-            _isLoading
-                ? CircularProgressIndicator(
-                  color: const Color.fromARGB(255, 43, 108, 164),
-                )
-                : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.login),
-                    SizedBox(width: 9),
-                    Text("Login"),
-                  ],
-                ),
-      ),
-    );
-  }
-
-  Widget _buildForgotPasswordButton() {
-    return Center(
-      child: TextButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
-          );
-        },
-        child: Text(
-          "Forgot Password?",
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.blueGrey,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSignupButton() {
-    return Center(
-      child: TextButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SignupPage()),
-          );
-        },
-        child: Text(
-          "Don't have an account? Sign up",
-          style: TextStyle(fontSize: 16, color: Colors.blueGrey),
         ),
       ),
     );

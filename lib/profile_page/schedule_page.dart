@@ -7,22 +7,24 @@ class SchedulePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Schedule"),
-        backgroundColor: Colors.blueGrey,
-      ),
+      appBar: AppBar(title: Text("Schedule"), backgroundColor: Colors.blueGrey),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               "View Class Routine",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueGrey,
+              ),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                const url = 'https://www.cse.ruet.ac.bd/page/class-routine';
+                const url =
+                    'https://muhammadessa-514.github.io/My-Personal-Portfolio/';
                 if (await canLaunchUrl(Uri.parse(url))) {
                   await launchUrl(Uri.parse(url));
                 }

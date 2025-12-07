@@ -6,13 +6,12 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
 import 'login_page/login_page.dart';
 import 'profile_page/dashboard_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Platform specific Firebase initialization
   if (kIsWeb) {
-    // Web-specific Firebase configuration
     await Firebase.initializeApp(
       options: const FirebaseOptions(
         apiKey: "AIzaSyAb0TzjniE2iCEs-HFfpcxI5-3rRR2tkD0",
@@ -23,28 +22,8 @@ void main() async {
         appId: "1:569775601632:web:0893152401b80d1970dd85",
       ),
     );
-  } else if (Platform.isWindows) {
-    // Windows-specific Firebase configuration
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyAZk-0O762ba30uaKg4Z8mKVD10cV0okoM",
-        appId: "1:241623526441:windows:af145909d6302fb64f8038",
-        messagingSenderId: "241623526441",
-        projectId: "sams8-3-2025",
-        storageBucket: "sams8-3-2025.firebasestorage.app",
-      ),
-    );
   } else {
-    // Default (Android/iOS) Firebase configuration
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyAZk-0O762ba30uaKg4Z8mKVD10cV0okoM",
-        appId: "1:241623526441:android:af145909d6302fb64f8038",
-        messagingSenderId: "241623526441",
-        projectId: "sams8-3-2025",
-        storageBucket: "sams8-3-2025.firebasestorage.app",
-      ),
-    );
+    await Firebase.initializeApp();
   }
 
   runApp(const MyApp());
@@ -52,22 +31,17 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'SAMS',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white60),
-        useMaterial3: true,
-      ),
+      title: 'KIU Smart Haziri - Muhammad Essa 5215',
+      theme: ThemeData(primarySwatch: Colors.blueGrey, useMaterial3: true),
       home: const LoginPageWrapper(),
     );
   }
 }
 
-// Wrapper widget to handle authentication state while keeping LoginPage as the base home
 class LoginPageWrapper extends StatelessWidget {
   const LoginPageWrapper({super.key});
 
@@ -77,116 +51,69 @@ class LoginPageWrapper extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show a loading indicator while checking auth state
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
         if (snapshot.hasData) {
-          // User is signed in
           User user = snapshot.data!;
-          // Check if email is verified
-          if (true) {
-            // Fetch user role from Firestore
-            return FutureBuilder<DocumentSnapshot>(
-              future:
-                  FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user.uid)
-                      .get(),
-              builder: (context, firestoreSnapshot) {
-                if (firestoreSnapshot.connectionState ==
-                    ConnectionState.waiting) {
-                  return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                if (firestoreSnapshot.hasError) {
-                  return Scaffold(
-                    body: Center(
-                      child: Text(
-                        "Error loading user data: ${firestoreSnapshot.error}",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.blueGrey,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                String role =
-                    firestoreSnapshot.data?.get('role') ?? 'Course Teacher';
-
-                // Navigate to DashboardPage if email is verified
-                return DashboardPage(
-                  name: user.displayName ?? "User",
-                  email: user.email ?? "",
-                  role: role,
+          // Offline-Robust User Data Fetch
+          return FutureBuilder<Map<String, String?>>(
+            future: _fetchUserDataRobust(user),
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
                 );
-              },
-            );
-          } else {
-            // If email is not verified, prompt the user to verify it
-            return Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Please verify your email to continue.",
-                      style: TextStyle(fontSize: 18, color: Colors.blueGrey),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () async {
-                        // Resend verification email
-                        await user.sendEmailVerification();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Verification email resent! Please check your inbox.",
-                            ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        elevation: 2.0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                      child: const Text("Resend Verification Email"),
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: () async {
-                        // Sign out the user and redirect to LoginPage
-                        await FirebaseAuth.instance.signOut();
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        "Sign Out",
-                        style: TextStyle(fontSize: 16, color: Colors.blueGrey),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-        } else {
-          // User is not signed in, show LoginPage
-          return const LoginPage();
+              }
+
+              final data = snap.data ?? {};
+              String role = data['role'] ?? "student";
+              String? rollno = data['rollno'];
+
+              return DashboardPage(
+                name: user.displayName ?? "User",
+                email: user.email ?? "",
+                role: role,
+                rollno: rollno,
+              );
+            },
+          );
         }
+        return const LoginPage();
       },
     );
+  }
+
+  Future<Map<String, String?>> _fetchUserDataRobust(User user) async {
+      try {
+          // 1. Try Firestore
+          final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+          if (doc.exists) {
+              final data = doc.data() as Map<String, dynamic>;
+              String role = data['role']?.toString().toLowerCase().trim() ?? 'student';
+              String? roll = data['rollno']?.toString();
+              
+              // Cache locally
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('last_uid_${user.uid}_role', role);
+              if (roll != null) await prefs.setString('last_uid_${user.uid}_roll', roll);
+              
+              return {'role': role, 'rollno': roll};
+          }
+      } catch (e) {
+          print("Firestore user fetch failed (Offline?): $e");
+      }
+      
+      // 2. Fallback to Local Cache
+      try {
+          final prefs = await SharedPreferences.getInstance();
+          String role = prefs.getString('last_uid_${user.uid}_role') ?? 'student';
+          String? roll = prefs.getString('last_uid_${user.uid}_roll');
+          return {'role': role, 'rollno': roll};
+      } catch (e) {
+         return {'role': 'student', 'rollno': null};
+      }
   }
 }

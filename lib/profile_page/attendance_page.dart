@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
@@ -24,7 +26,7 @@ class _AttendancePageState extends State<AttendancePage> {
     "Discrete Mathematics",
     "Electrical and Electronic Engineering",
     "Humanities",
-    "Mathematics"
+    "Mathematics",
   ];
 
   final List<String> sections = ["A", "B", "C"];
@@ -48,7 +50,11 @@ class _AttendancePageState extends State<AttendancePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditingPreviousSession ? "Edit Previous Attendance" : "Attendance System"),
+        title: Text(
+          isEditingPreviousSession
+              ? "Edit Previous Attendance"
+              : "Attendance System",
+        ),
         backgroundColor: Colors.blueGrey,
         actions: [
           // Add a button to access previous sessions
@@ -85,7 +91,9 @@ class _AttendancePageState extends State<AttendancePage> {
                 children: [
                   // Course, Section Selection and Date Picker Row
                   Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.all(cardPadding),
                       child: Column(
@@ -94,10 +102,13 @@ class _AttendancePageState extends State<AttendancePage> {
                           // Date Selection
                           Row(
                             children: [
-                              Icon(Icons.calendar_today, color: Colors.blueGrey),
+                              Icon(
+                                Icons.calendar_today,
+                                color: Colors.blueGrey,
+                              ),
                               const SizedBox(width: 5),
                               Text(
-                                "Date: "+DateFormat('yyyy-MM-dd').format(selectedDate),
+                                "Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}",
                                 style: TextStyle(
                                   fontSize: cardFontSize,
                                   fontWeight: FontWeight.bold,
@@ -105,7 +116,10 @@ class _AttendancePageState extends State<AttendancePage> {
                               ),
                               const Spacer(),
                               TextButton(
-                                onPressed: isEditingPreviousSession ? null : () => _selectDate(context),
+                                onPressed:
+                                    isEditingPreviousSession
+                                        ? null
+                                        : () => _selectDate(context),
                                 child: const Text("Change Date"),
                               ),
                             ],
@@ -117,55 +131,78 @@ class _AttendancePageState extends State<AttendancePage> {
                               Expanded(
                                 flex: 2,
                                 child: DropdownButtonFormField<String>(
-                                  value: selectedCourse,
+                                  initialValue: selectedCourse,
                                   isExpanded: true,
                                   decoration: InputDecoration(
                                     labelText: "Select Course",
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12.0),
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 8,
+                                    ),
                                   ),
-                                  style: TextStyle(fontSize: dropdownFontSize, color: Colors.black),
-                                  items: courses.map((course) {
-                                    return DropdownMenuItem(
-                                      value: course,
-                                      child: Text(course, overflow: TextOverflow.ellipsis),
-                                    );
-                                  }).toList(),
-                                  onChanged: isEditingPreviousSession ? null : (value) {
-                                    setState(() {
-                                      selectedCourse = value;
-                                    });
-                                  },
+                                  style: TextStyle(
+                                    fontSize: dropdownFontSize,
+                                    color: Colors.black,
+                                  ),
+                                  items:
+                                      courses.map((course) {
+                                        return DropdownMenuItem(
+                                          value: course,
+                                          child: Text(
+                                            course,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        );
+                                      }).toList(),
+                                  onChanged:
+                                      isEditingPreviousSession
+                                          ? null
+                                          : (value) {
+                                            setState(() {
+                                              selectedCourse = value;
+                                            });
+                                          },
                                 ),
                               ),
                               const SizedBox(width: 10),
                               Expanded(
                                 flex: 2,
                                 child: DropdownButtonFormField<String>(
-                                  value: selectedSection,
+                                  initialValue: selectedSection,
                                   isExpanded: true,
                                   decoration: InputDecoration(
                                     labelText: "Select Section",
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12.0),
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 8,
+                                    ),
                                   ),
-                                  style: TextStyle(fontSize: dropdownFontSize, color: Colors.black),
-                                  items: sections.map((section) {
-                                    return DropdownMenuItem(
-                                      value: section,
-                                      child: Text("$section"),
-                                    );
-                                  }).toList(),
-                                  onChanged: isEditingPreviousSession ? null : (value) {
-                                    setState(() {
-                                      selectedSection = value;
-                                      _fetchStudents();
-                                    });
-                                  },
+                                  style: TextStyle(
+                                    fontSize: dropdownFontSize,
+                                    color: Colors.black,
+                                  ),
+                                  items:
+                                      sections.map((section) {
+                                        return DropdownMenuItem(
+                                          value: section,
+                                          child: Text(section),
+                                        );
+                                      }).toList(),
+                                  onChanged:
+                                      isEditingPreviousSession
+                                          ? null
+                                          : (value) {
+                                            setState(() {
+                                              selectedSection = value;
+                                              _fetchStudents();
+                                            });
+                                          },
                                 ),
                               ),
                             ],
@@ -178,8 +215,14 @@ class _AttendancePageState extends State<AttendancePage> {
                   // Session Info
                   if (currentSessionId != null)
                     Card(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      margin: const EdgeInsets.only(bottom: 15, left: 5, right: 5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      margin: const EdgeInsets.only(
+                        bottom: 15,
+                        left: 5,
+                        right: 5,
+                      ),
                       child: Padding(
                         padding: EdgeInsets.all(cardPadding),
                         child: Align(
@@ -189,8 +232,8 @@ class _AttendancePageState extends State<AttendancePage> {
                             children: [
                               Text(
                                 isEditingPreviousSession
-                                    ? "Editing Attendance - "+DateFormat('yyyy-MM-dd').format(currentSessionDate ?? selectedDate)
-                                    : "Attendance Session - "+DateFormat('yyyy-MM-dd').format(currentSessionDate ?? selectedDate),
+                                    ? "Editing Attendance - ${DateFormat('yyyy-MM-dd').format(currentSessionDate ?? selectedDate)}"
+                                    : "Attendance Session - ${DateFormat('yyyy-MM-dd').format(currentSessionDate ?? selectedDate)}",
                                 style: TextStyle(
                                   fontSize: cardFontSize + 2,
                                   fontWeight: FontWeight.bold,
@@ -209,7 +252,14 @@ class _AttendancePageState extends State<AttendancePage> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.green,
                                     ),
-                                    child: const Text("Mark All Present",style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                                    child: const Text(
+                                      "Mark All Present",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -225,20 +275,30 @@ class _AttendancePageState extends State<AttendancePage> {
                     )
                   else if (selectedCourse != null && selectedSection != null)
                     Expanded(
-                      child: students.isEmpty
-                          ? const Center(
-                        child: Text(
-                          "No students found in this section",
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      )
-                          : ListView.builder(
-                        itemCount: students.length,
-                        itemBuilder: (context, index) {
-                          final student = students[index];
-                          return _buildStudentCard(student, index, cardFontSize, buttonFontSize, isSmallScreen);
-                        },
-                      ),
+                      child:
+                          students.isEmpty
+                              ? const Center(
+                                child: Text(
+                                  "No students found in this section",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              )
+                              : ListView.builder(
+                                itemCount: students.length,
+                                itemBuilder: (context, index) {
+                                  final student = students[index];
+                                  return _buildStudentCard(
+                                    student,
+                                    index,
+                                    cardFontSize,
+                                    buttonFontSize,
+                                    isSmallScreen,
+                                  );
+                                },
+                              ),
                     )
                   else
                     const Expanded(
@@ -252,7 +312,10 @@ class _AttendancePageState extends State<AttendancePage> {
                   // Session Controls
                   if (students.isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10.0,
+                        horizontal: 15.0,
+                      ),
                       child: Wrap(
                         alignment: WrapAlignment.center,
                         spacing: 20.0,
@@ -261,15 +324,29 @@ class _AttendancePageState extends State<AttendancePage> {
                             SizedBox(
                               height: buttonHeight + 4,
                               child: ElevatedButton(
-                                onPressed: currentSessionId == null ? _startNewSession : null,
+                                onPressed:
+                                    currentSessionId == null
+                                        ? _startNewSession
+                                        : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
                                   minimumSize: Size(100, buttonHeight),
                                 ),
-                                child: Text("New Session", style: TextStyle(fontSize: buttonFontSize, fontWeight: FontWeight.bold, color: currentSessionId == null ? Colors.white : Colors.blueGrey)),
+                                child: Text(
+                                  "New Session",
+                                  style: TextStyle(
+                                    fontSize: buttonFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        currentSessionId == null
+                                            ? Colors.white
+                                            : Colors.blueGrey,
+                                  ),
+                                ),
                               ),
                             ),
-                          if (currentSessionId != null && !isEditingPreviousSession)
+                          if (currentSessionId != null &&
+                              !isEditingPreviousSession)
                             SizedBox(
                               height: buttonHeight + 4,
                               child: ElevatedButton(
@@ -278,7 +355,14 @@ class _AttendancePageState extends State<AttendancePage> {
                                   backgroundColor: Colors.red,
                                   minimumSize: Size(100, buttonHeight),
                                 ),
-                                child: Text("End Session", style: TextStyle(fontSize: buttonFontSize, fontWeight: FontWeight.bold, color: Colors.white)),
+                                child: Text(
+                                  "End Session",
+                                  style: TextStyle(
+                                    fontSize: buttonFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                             ),
                           if (isEditingPreviousSession)
@@ -290,7 +374,13 @@ class _AttendancePageState extends State<AttendancePage> {
                                   backgroundColor: Colors.blue,
                                   minimumSize: Size(100, buttonHeight),
                                 ),
-                                child: Text("Save Changes", style: TextStyle(fontSize: buttonFontSize, fontWeight: FontWeight.bold)),
+                                child: Text(
+                                  "Save Changes",
+                                  style: TextStyle(
+                                    fontSize: buttonFontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                         ],
@@ -320,9 +410,18 @@ class _AttendancePageState extends State<AttendancePage> {
     }
   }
 
-  Widget _buildStudentCard(Map<String, dynamic> student, int index, double cardFontSize, double buttonFontSize, bool isSmallScreen) {
+  Widget _buildStudentCard(
+    Map<String, dynamic> student,
+    int index,
+    double cardFontSize,
+    double buttonFontSize,
+    bool isSmallScreen,
+  ) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: isSmallScreen ? 3 : 7, horizontal: isSmallScreen ? 0 : 8),
+      margin: EdgeInsets.symmetric(
+        vertical: isSmallScreen ? 3 : 7,
+        horizontal: isSmallScreen ? 0 : 8,
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       elevation: 2,
       child: Padding(
@@ -341,12 +440,24 @@ class _AttendancePageState extends State<AttendancePage> {
             Wrap(
               spacing: 8.0,
               children: [
-                _buildStatusButton("Present", student['status'] == "Present", () {
-                  _markAttendance(index, "Present");
-                }, buttonFontSize, isSmallScreen),
-                _buildStatusButton("Absent", student['status'] == "Absent", () {
-                  _markAttendance(index, "Absent");
-                }, buttonFontSize, isSmallScreen),
+                _buildStatusButton(
+                  "Present",
+                  student['status'] == "Present",
+                  () {
+                    _markAttendance(index, "Present");
+                  },
+                  buttonFontSize,
+                  isSmallScreen,
+                ),
+                _buildStatusButton(
+                  "Absent",
+                  student['status'] == "Absent",
+                  () {
+                    _markAttendance(index, "Absent");
+                  },
+                  buttonFontSize,
+                  isSmallScreen,
+                ),
               ],
             ),
           ],
@@ -355,16 +466,26 @@ class _AttendancePageState extends State<AttendancePage> {
     );
   }
 
-  Widget _buildStatusButton(String label, bool isSelected, VoidCallback onPressed, double buttonFontSize, bool isSmallScreen) {
+  Widget _buildStatusButton(
+    String label,
+    bool isSelected,
+    VoidCallback onPressed,
+    double buttonFontSize,
+    bool isSmallScreen,
+  ) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected
-            ? (label == "Present" ? Colors.green : Colors.red)
-            : Colors.grey[300],
+        backgroundColor:
+            isSelected
+                ? (label == "Present" ? Colors.green : Colors.red)
+                : Colors.grey[300],
         foregroundColor: isSelected ? Colors.white : Colors.black,
         minimumSize: Size(isSmallScreen ? 80 : 100, isSmallScreen ? 36 : 40),
-        textStyle: TextStyle(fontSize: buttonFontSize, fontWeight: FontWeight.bold),
+        textStyle: TextStyle(
+          fontSize: buttonFontSize,
+          fontWeight: FontWeight.bold,
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         elevation: isSelected ? 4 : 1,
       ),
@@ -381,29 +502,60 @@ class _AttendancePageState extends State<AttendancePage> {
     });
 
     try {
-      // Only fetch students, no attendance data
-      final querySnapshot = await _firestore
-          .collection('students')
-          .where('section', isEqualTo: selectedSection)
-          .orderBy('roll')
-          .get();
+      // 1. Try Firestore First
+      final querySnapshot =
+          await _firestore
+              .collection('students')
+              .where('section', isEqualTo: selectedSection)
+              .get();
 
-      students = querySnapshot.docs.map((doc) {
-        final data = doc.data();
-        return {
-          "rollNo": data['roll'] ?? 0,
-          "id": data['roll']?.toString() ?? '0',
-          "name": data['name'] ?? 'Unknown',
-          "status": "Absent",
-          "documentId": doc.id,
-        };
-      }).toList();
+      if (querySnapshot.docs.isNotEmpty) {
+          students = querySnapshot.docs.map((doc) {
+            final data = doc.data();
+            return {
+              "rollNo": data['roll'] ?? 0,
+              "id": data['roll']?.toString() ?? '0',
+              "name": data['name'] ?? 'Unknown',
+              "status": "Absent",
+              "documentId": doc.id,
+            };
+          }).toList();
+      } else {
+         // 2. Fallback to Local Storage
+         final prefs = await SharedPreferences.getInstance();
+         final indexList = prefs.getStringList('student_index_list') ?? [];
+         
+         for (var roll in indexList) {
+            final jsonStr = prefs.getString('student_$roll');
+            if (jsonStr != null) {
+               final data = jsonDecode(jsonStr) as Map<String, dynamic>;
+               if (data['section'] == selectedSection) {
+                   students.add({
+                     "rollNo": roll, 
+                     "id": roll,
+                     "name": data['name'] ?? 'Unknown',
+                     "status": "Absent",
+                     "documentId": "local_$roll"
+                   });
+               }
+            }
+         }
+      }
+
+      // Client-side sort
+      students.sort((a, b) {
+        // Try parsing int, if fails compare as string
+        int? r1 = int.tryParse(a['id'].toString());
+        int? r2 = int.tryParse(b['id'].toString());
+        if (r1 != null && r2 != null) return r1.compareTo(r2);
+        return a['id'].toString().compareTo(b['id'].toString());
+      });
 
       setState(() {});
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error fetching students: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error fetching students: $e")));
     } finally {
       setState(() {
         isLoading = false;
@@ -417,14 +569,15 @@ class _AttendancePageState extends State<AttendancePage> {
     final dateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
 
     try {
-      final sessionQuery = await _firestore
-          .collection('attendance_sessions')
-          .where('course', isEqualTo: selectedCourse)
-          .where('section', isEqualTo: selectedSection)
-          .where('dateString', isEqualTo: dateStr)
-          .where('status', isEqualTo: 'active')
-          .limit(1)
-          .get();
+      final sessionQuery =
+          await _firestore
+              .collection('attendance_sessions')
+              .where('course', isEqualTo: selectedCourse)
+              .where('section', isEqualTo: selectedSection)
+              .where('dateString', isEqualTo: dateStr)
+              .where('status', isEqualTo: 'active')
+              .limit(1)
+              .get();
 
       if (sessionQuery.docs.isNotEmpty) {
         final sessionDoc = sessionQuery.docs.first;
@@ -445,23 +598,28 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   Future<void> _loadExistingAttendance() async {
-    if (selectedCourse == null || selectedSection == null || currentSessionDate == null) return;
+    if (selectedCourse == null ||
+        selectedSection == null ||
+        currentSessionDate == null) {
+      return;
+    }
 
     final dateStr = DateFormat('yyyy-MM-dd').format(currentSessionDate!);
 
     try {
       for (var student in students) {
         final rollNo = student['id'];
-        final doc = await _firestore
-            .collection('attendance_records')
-            .doc(dateStr)
-            .collection('sections')
-            .doc(selectedSection)
-            .collection('rolls')
-            .doc(rollNo)
-            .collection('courses')
-            .doc(selectedCourse)
-            .get();
+        final doc =
+            await _firestore
+                .collection('attendance_records')
+                .doc(dateStr)
+                .collection('sections')
+                .doc(selectedSection)
+                .collection('rolls')
+                .doc(rollNo)
+                .collection('courses')
+                .doc(selectedCourse)
+                .get();
 
         if (doc.exists) {
           student['status'] = doc.data()?['status'] ?? 'Absent';
@@ -489,27 +647,40 @@ class _AttendancePageState extends State<AttendancePage> {
       final dateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
 
       // Create new session
-      final sessionDoc = await _firestore.collection('attendance_sessions').add({
-        'course': selectedCourse,
-        'section': selectedSection,
-        'date': selectedDate,
-        'dateString': dateStr,
-        'status': 'active',
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+      final sessionDoc = await _firestore
+          .collection('attendance_sessions')
+          .add({
+            'course': selectedCourse,
+            'section': selectedSection,
+            'date': selectedDate,
+            'dateString': dateStr,
+            'status': 'active',
+            'createdAt': FieldValue.serverTimestamp(),
+          });
 
       setState(() {
         currentSessionId = sessionDoc.id;
         currentSessionDate = selectedDate;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("New session started")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("New session started")));
     } catch (e) {
+      print("Firestore Error (ignored for offline mode): $e");
+      // --- OFFLINE FALLBACK ---
+      // If Firestore fails (permissions/network), we continue locally!
+      setState(() {
+        currentSessionId = "offline_${DateTime.now().millisecondsSinceEpoch}";
+        currentSessionDate = selectedDate;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error starting session: $e")),
+        const SnackBar(
+          content: Text("Started Offline Session (Remote failed)"),
+          backgroundColor: Colors.orange,
+        ),
       );
+      // ------------------------
     } finally {
       setState(() {
         isLoading = false;
@@ -526,7 +697,9 @@ class _AttendancePageState extends State<AttendancePage> {
     }
 
     final student = students[index];
-    final dateStr = DateFormat('yyyy-MM-dd').format(currentSessionDate ?? selectedDate);
+    final dateStr = DateFormat(
+      'yyyy-MM-dd',
+    ).format(currentSessionDate ?? selectedDate);
 
     try {
       setState(() {
@@ -538,21 +711,21 @@ class _AttendancePageState extends State<AttendancePage> {
       // 1. Date-level document
       final dateRef = _firestore.collection('attendance_records').doc(dateStr);
       batch.set(dateRef, {
-        'lastUpdated': FieldValue.serverTimestamp()
+        'lastUpdated': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
       // 2. Section-level document
       final sectionRef = dateRef.collection('sections').doc(selectedSection);
       batch.set(sectionRef, {
         'section': selectedSection,
-        'course': selectedCourse
+        'course': selectedCourse,
       }, SetOptions(merge: true));
 
       // 3. Roll-level document
       final rollRef = sectionRef.collection('rolls').doc(student['id']);
       batch.set(rollRef, {
         'name': student['name'],
-        'lastUpdated': FieldValue.serverTimestamp()
+        'lastUpdated': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
       // 4. Course attendance record
@@ -560,15 +733,44 @@ class _AttendancePageState extends State<AttendancePage> {
       batch.set(courseRef, {
         'status': status,
         'timestamp': FieldValue.serverTimestamp(),
-        'sessionId': currentSessionId
+        'sessionId': currentSessionId,
       });
 
       await batch.commit();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error updating attendance: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error updating attendance: $e")));
     }
+    
+    // --- OFFLINE SAVE SINGLE ---
+    try {
+        final prefs = await SharedPreferences.getInstance();
+        // Key: attendance_records (List of Strings)
+        List<String> records = prefs.getStringList('attendance_records') ?? [];
+        
+        final record = {
+           'date': dateStr,
+           'course': selectedCourse,
+           'section': selectedSection,
+           'roll': student['id'], 
+           'status': status,
+           'timestamp': DateTime.now().toIso8601String(),
+        };
+        
+        // Remove existing record for this student/date/course to avoid duplicates
+        records.removeWhere((r) {
+             final d = jsonDecode(r);
+             return d['date'] == dateStr && d['course'] == selectedCourse && d['roll'] == student['id'];
+        });
+        
+        records.add(jsonEncode(record));
+        await prefs.setStringList('attendance_records', records);
+        print("Offline Attendance Saved: ${student['id']} -> $status");
+    } catch (e) {
+       print("Offline Save Error: $e");
+    }
+    // ---------------------------
   }
 
   Future<void> _markAllPresent() async {
@@ -579,20 +781,22 @@ class _AttendancePageState extends State<AttendancePage> {
     });
 
     try {
-      final dateStr = DateFormat('yyyy-MM-dd').format(currentSessionDate ?? selectedDate);
+      final dateStr = DateFormat(
+        'yyyy-MM-dd',
+      ).format(currentSessionDate ?? selectedDate);
       final batch = _firestore.batch();
 
       // Date-level document
       final dateRef = _firestore.collection('attendance_records').doc(dateStr);
       batch.set(dateRef, {
-        'lastUpdated': FieldValue.serverTimestamp()
+        'lastUpdated': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
       // Section-level document
       final sectionRef = dateRef.collection('sections').doc(selectedSection);
       batch.set(sectionRef, {
         'section': selectedSection,
-        'course': selectedCourse
+        'course': selectedCourse,
       }, SetOptions(merge: true));
 
       for (final student in students) {
@@ -602,7 +806,7 @@ class _AttendancePageState extends State<AttendancePage> {
         final rollRef = sectionRef.collection('rolls').doc(student['id']);
         batch.set(rollRef, {
           'name': student['name'],
-          'lastUpdated': FieldValue.serverTimestamp()
+          'lastUpdated': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
 
         // Course attendance record
@@ -610,7 +814,7 @@ class _AttendancePageState extends State<AttendancePage> {
         batch.set(courseRef, {
           'status': "Present",
           'timestamp': FieldValue.serverTimestamp(),
-          'sessionId': currentSessionId
+          'sessionId': currentSessionId,
         });
       }
 
@@ -619,14 +823,43 @@ class _AttendancePageState extends State<AttendancePage> {
         const SnackBar(content: Text("All students marked present")),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error marking all present: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error marking all present: $e")));
     } finally {
       setState(() {
         isLoading = false;
       });
     }
+    
+    // --- OFFLINE SAVE ALL ---
+    try {
+         final dateStr = DateFormat('yyyy-MM-dd').format(currentSessionDate ?? selectedDate);
+         final prefs = await SharedPreferences.getInstance();
+         List<String> records = prefs.getStringList('attendance_records') ?? [];
+         
+         for (final student in students) {
+             final record = {
+               'date': dateStr,
+               'course': selectedCourse,
+               'section': selectedSection,
+               'roll': student['id'], 
+               'status': "Present",
+               'timestamp': DateTime.now().toIso8601String(),
+             };
+              // Remove old
+             records.removeWhere((r) {
+                 final d = jsonDecode(r);
+                 return d['date'] == dateStr && d['course'] == selectedCourse && d['roll'] == student['id'];
+             });
+             records.add(jsonEncode(record));
+         }
+         await prefs.setStringList('attendance_records', records);
+         print("Offline Bulk Attendance Saved");
+    } catch(e) {
+      print("Offline Bulk Save Error: $e");
+    }
+    // ------------------------
   }
 
   Future<void> _endCurrentSession() async {
@@ -637,10 +870,13 @@ class _AttendancePageState extends State<AttendancePage> {
     });
 
     try {
-      await _firestore.collection('attendance_sessions').doc(currentSessionId).update({
-        'status': 'completed',
-        'endTime': FieldValue.serverTimestamp(),
-      });
+      await _firestore
+          .collection('attendance_sessions')
+          .doc(currentSessionId)
+          .update({
+            'status': 'completed',
+            'endTime': FieldValue.serverTimestamp(),
+          });
 
       setState(() {
         currentSessionId = null;
@@ -651,16 +887,15 @@ class _AttendancePageState extends State<AttendancePage> {
         const SnackBar(content: Text("Session completed successfully")),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error ending session: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error ending session: $e")));
     } finally {
       setState(() {
         isLoading = false;
       });
     }
   }
-
 
   // Method to fetch and show previous completed sessions
   Future<void> _showPreviousSessionsDialog() async {
@@ -670,23 +905,25 @@ class _AttendancePageState extends State<AttendancePage> {
 
     try {
       // Fetch completed sessions for the selected course and section
-      final query = await _firestore
-          .collection('attendance_sessions')
-          .where('status', isEqualTo: 'completed')
-          .orderBy('date', descending: true)
-          .limit(30) // Limit to recent 30 sessions
-          .get();
+      final query =
+          await _firestore
+              .collection('attendance_sessions')
+              .where('status', isEqualTo: 'completed')
+              .orderBy('date', descending: true)
+              .limit(30) // Limit to recent 30 sessions
+              .get();
 
-      previousSessions = query.docs.map((doc) {
-        final data = doc.data();
-        return {
-          'id': doc.id,
-          'course': data['course'],
-          'section': data['section'],
-          'date': (data['date'] as Timestamp).toDate(),
-          'dateString': data['dateString'],
-        };
-      }).toList();
+      previousSessions =
+          query.docs.map((doc) {
+            final data = doc.data();
+            return {
+              'id': doc.id,
+              'course': data['course'],
+              'section': data['section'],
+              'date': (data['date'] as Timestamp).toDate(),
+              'dateString': data['dateString'],
+            };
+          }).toList();
 
       // Show dialog with previous sessions
       if (context.mounted) {
@@ -713,23 +950,28 @@ class _AttendancePageState extends State<AttendancePage> {
       content: SizedBox(
         width: double.maxFinite,
         height: 400,
-        child: previousSessions.isEmpty
-            ? const Center(child: Text("No previous sessions found"))
-            : ListView.builder(
-          itemCount: previousSessions.length,
-          itemBuilder: (context, index) {
-            final session = previousSessions[index];
-            return ListTile(
-              title: Text("${session['course']} - Section ${session['section']}"),
-              subtitle: Text(DateFormat('yyyy-MM-dd').format(session['date'])),
-              trailing: const Icon(Icons.edit),
-              onTap: () {
-                Navigator.of(context).pop(); // Close dialog
-                _editPreviousSession(session);
-              },
-            );
-          },
-        ),
+        child:
+            previousSessions.isEmpty
+                ? const Center(child: Text("No previous sessions found"))
+                : ListView.builder(
+                  itemCount: previousSessions.length,
+                  itemBuilder: (context, index) {
+                    final session = previousSessions[index];
+                    return ListTile(
+                      title: Text(
+                        "${session['course']} - Section ${session['section']}",
+                      ),
+                      subtitle: Text(
+                        DateFormat('yyyy-MM-dd').format(session['date']),
+                      ),
+                      trailing: const Icon(Icons.edit),
+                      onTap: () {
+                        Navigator.of(context).pop(); // Close dialog
+                        _editPreviousSession(session);
+                      },
+                    );
+                  },
+                ),
       ),
       actions: [
         TextButton(
@@ -754,45 +996,53 @@ class _AttendancePageState extends State<AttendancePage> {
 
     try {
       // Fetch students and attendance in parallel for speed
-      final studentsFuture = _firestore
-          .collection('students')
-          .where('section', isEqualTo: selectedSection)
-          .orderBy('roll')
-          .get();
+      final studentsFuture =
+          _firestore
+              .collection('students')
+              .where('section', isEqualTo: selectedSection)
+              .get();
       final dateStr = DateFormat('yyyy-MM-dd').format(currentSessionDate!);
-      final rollsFuture = _firestore
-          .collection('attendance_records')
-          .doc(dateStr)
-          .collection('sections')
-          .doc(selectedSection)
-          .collection('rolls')
-          .get();
+      final rollsFuture =
+          _firestore
+              .collection('attendance_records')
+              .doc(dateStr)
+              .collection('sections')
+              .doc(selectedSection)
+              .collection('rolls')
+              .get();
       final results = await Future.wait([studentsFuture, rollsFuture]);
       final studentsSnapshot = results[0] as QuerySnapshot;
       final rollsSnapshot = results[1] as QuerySnapshot;
       // Build a map of rollNo to status for this course
       final Map<String, String> rollStatus = {};
       // Fetch all course docs in parallel for speed
-      final List<Future> courseDocFutures = rollsSnapshot.docs.map((rollDoc) {
-        final rollNo = rollDoc.id;
-        return rollDoc.reference.collection('courses').doc(selectedCourse).get().then((courseDoc) {
-          if (courseDoc.exists) {
-            rollStatus[rollNo] = courseDoc.data()?['status'] ?? 'Absent';
-          }
-        });
-      }).toList();
+      final List<Future> courseDocFutures =
+          rollsSnapshot.docs.map((rollDoc) {
+            final rollNo = rollDoc.id;
+            return rollDoc.reference
+                .collection('courses')
+                .doc(selectedCourse)
+                .get()
+                .then((courseDoc) {
+                  if (courseDoc.exists) {
+                    rollStatus[rollNo] =
+                        courseDoc.data()?['status'] ?? 'Absent';
+                  }
+                });
+          }).toList();
       await Future.wait(courseDocFutures);
-      students = studentsSnapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        final rollNo = data['roll']?.toString() ?? '0';
-        return {
-          "rollNo": data['roll'] ?? 0,
-          "id": rollNo,
-          "name": data['name'] ?? 'Unknown',
-          "status": rollStatus[rollNo] ?? 'Absent',
-          "documentId": doc.id,
-        };
-      }).toList();
+      students =
+          studentsSnapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final rollNo = data['roll']?.toString() ?? '0';
+            return {
+              "rollNo": data['roll'] ?? 0,
+              "id": rollNo,
+              "name": data['name'] ?? 'Unknown',
+              "status": rollStatus[rollNo] ?? 'Absent',
+              "documentId": doc.id,
+            };
+          }).toList();
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Previous session loaded for editing")),
@@ -828,7 +1078,7 @@ class _AttendancePageState extends State<AttendancePage> {
       // Update the timestamp at date level
       final dateRef = _firestore.collection('attendance_records').doc(dateStr);
       batch.set(dateRef, {
-        'lastUpdated': FieldValue.serverTimestamp()
+        'lastUpdated': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
       // Process each student's attendance
@@ -840,7 +1090,7 @@ class _AttendancePageState extends State<AttendancePage> {
             .doc(student['id']);
 
         batch.set(rollRef, {
-          'lastUpdated': FieldValue.serverTimestamp()
+          'lastUpdated': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
 
         final courseRef = rollRef.collection('courses').doc(selectedCourse);

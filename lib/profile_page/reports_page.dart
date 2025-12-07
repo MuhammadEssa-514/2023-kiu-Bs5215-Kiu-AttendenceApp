@@ -11,12 +11,26 @@ import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
 import 'web_file_saver.dart' if (dart.library.io) 'web_file_saver_stub.dart';
+import 'package:printing/printing.dart'; // For printing and PDF preview
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class AttendanceReportPage extends StatefulWidget {
-  const AttendanceReportPage({super.key});
+  final String role;
+  final String? currentStudentRollNo;
+  final String? initialCourse;
+  final String? initialSection;
+
+  const AttendanceReportPage({
+    super.key,
+    required this.role,
+    this.currentStudentRollNo,
+    this.initialCourse,
+    this.initialSection,
+  });
 
   @override
-  _AttendanceReportPageState createState() => _AttendanceReportPageState();
+  State<AttendanceReportPage> createState() => _AttendanceReportPageState();
 }
 
 class _AttendanceReportPageState extends State<AttendanceReportPage> {
@@ -42,7 +56,90 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize with passed values if available
+    selectedCourse = widget.initialCourse;
+    selectedSection = widget.initialSection;
+    
+    if (widget.currentStudentRollNo != null) {
+      if (selectedCourse != null && selectedSection != null) {
+          // If we already have everything (from Dashboard), generate immediately
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+             _fetchStudents().then((_) => _generateReport());
+          });
+      } else {
+         _autoLoadStudentDetails();
+      }
+    }
+  }
+
+  Future<void> _autoLoadStudentDetails() async {
+    final roll = widget.currentStudentRollNo!;
+    final rollInt = int.tryParse(roll);
+    
+    try {
+        QuerySnapshot q;
+        // Try finding by int roll first (as stored by ManageStudentsPage)
+        if (rollInt != null) {
+            q = await _firestore.collection('students').where('roll', isEqualTo: rollInt).get();
+            // Fallback to string if not found
+            if (q.docs.isEmpty) {
+                 q = await _firestore.collection('students').where('roll', isEqualTo: roll).get();
+            }
+        } else {
+             q = await _firestore.collection('students').where('roll', isEqualTo: roll).get();
+        }
+
+        if (q.docs.isNotEmpty) {
+            final data = q.docs.first.data() as Map<String, dynamic>;
+            if (mounted) {
+              setState(() {
+                  if (data['section'] != null) selectedSection = data['section'];
+                  if (data['course'] != null) selectedCourse = data['course'];
+              });
+              
+              if (selectedSection != null) {
+                 await _fetchStudents();
+                 if (selectedCourse != null) {
+                    _generateReport();
+                 }
+              }
+            }
+        } else {
+           // --- OFFLINE AUTO LOAD ---
+           try {
+             final prefs = await SharedPreferences.getInstance();
+             final cleanRoll = roll.trim();
+             final localJson = prefs.getString('student_$cleanRoll');
+             if (localJson != null) {
+                final data = jsonDecode(localJson) as Map<String, dynamic>;
+                if (mounted) {
+                   setState(() {
+                      if (data['section'] != null) selectedSection = data['section'];
+                      if (data['course'] != null) selectedCourse = data['course'];
+                   });
+                   if (selectedSection != null) {
+                       await _fetchStudents();
+                       if (selectedCourse != null) {
+                          _generateReport();
+                       }
+                   }
+                }
+             }
+           } catch (e) {
+             print("Error offline auto-load: $e");
+           }
+           // -------------------------
+        }
+    } catch (e) {
+        print("Error auto-loading student details: $e");
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final bool isTeacher = widget.role.toLowerCase() == "teacher";
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 800;
     final double cardPadding = isSmallScreen ? 16 : 24;
@@ -66,7 +163,6 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Filter Section
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -116,9 +212,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                                         );
                                       }).toList(),
                                   onChanged: (value) {
-                                    setState(() {
-                                      selectedCourse = value;
-                                    });
+                                    setState(() => selectedCourse = value);
                                   },
                                 ),
                               ),
@@ -146,7 +240,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                                       sections.map((section) {
                                         return DropdownMenuItem(
                                           value: section,
-                                          child: Text("$section"),
+                                          child: Text(section),
                                         );
                                       }).toList(),
                                   onChanged: (value) {
@@ -256,10 +350,6 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                                       backgroundColor: Colors.cyan.shade500,
                                       foregroundColor: Colors.white,
                                       elevation: 4,
-                                      shadowColor: Color(0xFF90CAF9),
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: isSmallScreen ? 0 : 0,
-                                      ),
                                       minimumSize: Size(
                                         double.infinity,
                                         buttonHeight + 8,
@@ -267,7 +357,6 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(14),
                                       ),
-                                      textStyle: TextStyle(letterSpacing: 1.1),
                                     ),
                                   ),
                                 ),
@@ -282,7 +371,9 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                                   height: buttonHeight + 4,
                                   child: ElevatedButton.icon(
                                     onPressed:
-                                        (attendanceData.isEmpty || isLoading)
+                                        (attendanceData.isEmpty ||
+                                                isLoading ||
+                                                !isTeacher)
                                             ? null
                                             : _exportToExcel,
                                     icon: const Icon(Icons.table_chart),
@@ -297,21 +388,13 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                                       backgroundColor: Colors.green.shade600,
                                       foregroundColor: Colors.white,
                                       elevation: 4,
-                                      shadowColor: Colors.green.shade100,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                        vertical: isSmallScreen ? 0 : 0,
-                                      ), // Add horizontal padding
                                       minimumSize: Size(
-                                        0,
+                                        double.infinity,
                                         buttonHeight + 8,
-                                      ), // Remove forced full width
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          14,
-                                        ), // Match other buttons
                                       ),
-                                      textStyle: TextStyle(letterSpacing: 1.1),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -322,7 +405,9 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                                   height: buttonHeight + 4,
                                   child: ElevatedButton.icon(
                                     onPressed:
-                                        (attendanceData.isEmpty || isLoading)
+                                        (attendanceData.isEmpty ||
+                                                isLoading ||
+                                                !isTeacher)
                                             ? null
                                             : _exportToPdf,
                                     icon: const Icon(Icons.picture_as_pdf),
@@ -337,10 +422,6 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                                       backgroundColor: Colors.red.shade600,
                                       foregroundColor: Colors.white,
                                       elevation: 4,
-                                      shadowColor: Colors.red.shade100,
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: isSmallScreen ? 0 : 0,
-                                      ),
                                       minimumSize: Size(
                                         double.infinity,
                                         buttonHeight + 8,
@@ -348,19 +429,37 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(14),
                                       ),
-                                      textStyle: TextStyle(letterSpacing: 1.1),
                                     ),
                                   ),
                                 ),
                               ),
                             ],
                           ),
+                          const SizedBox(height: 20),
+
+                          // PRINT BUTTON - Everyone
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.print, size: 30),
+                            label: const Text(
+                              "Print Report",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueGrey[800],
+                              foregroundColor: Colors.white,
+                              elevation: 4,
+                              minimumSize: Size(double.infinity, 60),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            onPressed: _printReport,
+                          ),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Report Preview
                   Expanded(
                     child:
                         isLoading
@@ -423,6 +522,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
     );
   }
 
+  // ALL YOUR ORIGINAL METHODS BELOW — COPY FROM YOUR OLD FILE
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -430,19 +530,14 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
-
     if (picked != null) {
       setState(() {
         if (isStartDate) {
           startDate = picked;
-          if (startDate.isAfter(endDate)) {
-            endDate = startDate;
-          }
+          if (startDate.isAfter(endDate)) endDate = startDate;
         } else {
           endDate = picked;
-          if (endDate.isBefore(startDate)) {
-            startDate = endDate;
-          }
+          if (endDate.isBefore(startDate)) startDate = endDate;
         }
       });
     }
@@ -450,39 +545,71 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
 
   Future<void> _fetchStudents() async {
     if (selectedSection == null) return;
-
     setState(() {
       isLoading = true;
       students.clear();
     });
-
     try {
       final querySnapshot =
           await _firestore
               .collection('students')
               .where('section', isEqualTo: selectedSection)
-              .orderBy('roll')
               .get();
-
-      setState(() {
-        students =
-            querySnapshot.docs.map((doc) {
+      
+      var fetchedStudents = <Map<String, dynamic>>[];
+      
+      if (querySnapshot.docs.isNotEmpty) {
+         fetchedStudents = querySnapshot.docs.map((doc) {
               final data = doc.data();
               return {
                 "rollNo": data['roll'] ?? 0,
                 "id": data['roll']?.toString() ?? '0',
                 "name": data['name'] ?? 'Unknown',
               };
-            }).toList();
+         }).toList();
+      } else {
+         // --- OFFLINE FETCH STUDENTS ---
+         final prefs = await SharedPreferences.getInstance();
+         final indexList = prefs.getStringList('student_index_list') ?? [];
+         
+         for (var roll in indexList) {
+            final jsonStr = prefs.getString('student_$roll');
+            if (jsonStr != null) {
+               final data = jsonDecode(jsonStr) as Map<String, dynamic>;
+               if (data['section'] == selectedSection) {
+                   fetchedStudents.add({
+                     "rollNo": roll, 
+                     "id": roll,
+                     "name": data['name'] ?? 'Unknown',
+                   });
+               }
+            }
+         }
+         // ------------------------------
+      }
+
+      setState(() {
+
+        // Client-side sort
+        fetchedStudents.sort((a, b) {
+           int r1 = int.tryParse(a['id'].toString()) ?? 0;
+           int r2 = int.tryParse(b['id'].toString()) ?? 0;
+           return r1.compareTo(r2);
+        });
+
+        // If student role, filter by own roll number
+        if (widget.currentStudentRollNo != null) {
+            fetchedStudents = fetchedStudents.where((s) => s['id'] == widget.currentStudentRollNo).toList();
+        }
+
+        students = fetchedStudents;
       });
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Error fetching students: $e")));
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
@@ -494,16 +621,13 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
       return;
     }
 
-    if (mounted) {
-      setState(() {
-        isLoading = true;
-        attendanceData.clear();
-        datesList.clear();
-      });
-    }
+    setState(() {
+      isLoading = true;
+      attendanceData.clear();
+      datesList.clear();
+    });
 
     try {
-      // Generate list of dates between start and end date
       List<DateTime> datesInRange = [];
       for (
         DateTime date = startDate;
@@ -517,15 +641,13 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
               .map((date) => DateFormat('yyyy-MM-dd').format(date))
               .toList();
 
-      // Initialize attendance data structure
       for (var student in students) {
         attendanceData[student['id']] = {};
         for (var dateStr in datesList) {
-          attendanceData[student['id']]![dateStr] = '-'; // Default to absent
+          attendanceData[student['id']]![dateStr] = '-';
         }
       }
 
-      // Fetch all attendance records for the section and date range in parallel
       final List<Future<void>> fetchFutures = [];
       for (var dateStr in datesList) {
         fetchFutures.add(
@@ -549,8 +671,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                         .then((courseDoc) {
                           if (courseDoc.exists) {
                             String status = courseDoc.data()?['status'] ?? '-';
-                            if (attendanceData.containsKey(rollNo) &&
-                                attendanceData[rollNo]!.containsKey(dateStr)) {
+                            if (attendanceData.containsKey(rollNo)) {
                               attendanceData[rollNo]![dateStr] =
                                   status == 'Present' ? 'P' : 'A';
                             }
@@ -563,50 +684,57 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
         );
       }
       await Future.wait(fetchFutures);
+      
+      // --- OFFLINE REPORT GENERATION ---
+      try {
+           final prefs = await SharedPreferences.getInstance();
+           final records = prefs.getStringList('attendance_records') ?? [];
+           
+           for (var jsonStr in records) {
+               final r = jsonDecode(jsonStr) as Map<String, dynamic>;
+               final rDate = r['date'];
+               final rCourse = r['course'];
+               final rRoll = r['roll'];
+               final rStatus = r['status'];
+               
+               if (rCourse == selectedCourse && datesList.contains(rDate)) {
+                   if (attendanceData.containsKey(rRoll)) {
+                        attendanceData[rRoll]![rDate] = (rStatus == 'Present' ? 'P' : 'A');
+                   }
+               }
+           }
+      } catch (e) {
+          print("Error generating offline report: $e");
+      }
+      // ---------------------------------
 
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+      setState(() => isLoading = false);
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error generating report: $e")));
-      }
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error generating report: $e")));
     }
   }
 
-  // Method to calculate attendance percentages
   Map<String, double> _calculateAttendancePercentages() {
     Map<String, double> percentages = {};
-
     for (var student in students) {
       String studentId = student['id'] ?? '';
       if (studentId.isEmpty) continue;
-
       int presentCount = 0;
       int totalSessions = 0;
-
       for (var dateStr in datesList) {
         String status = attendanceData[studentId]?[dateStr] ?? '-';
         if (status == 'P' || status == 'A') {
           totalSessions++;
-          if (status == 'P') {
-            presentCount++;
-          }
+          if (status == 'P') presentCount++;
         }
       }
-
       double percentage =
           totalSessions > 0 ? (presentCount / totalSessions) * 100 : 0.0;
       percentages[studentId] = percentage;
     }
-
     return percentages;
   }
 
@@ -615,7 +743,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
 
     return DataTable(
       columnSpacing: 12,
-      headingRowColor: MaterialStateProperty.all(Colors.blueGrey[100]),
+      headingRowColor: WidgetStateProperty.all(Colors.blueGrey[100]),
       border: TableBorder.all(color: Colors.grey.shade300),
       columns: [
         const DataColumn(
@@ -629,7 +757,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
             label: SizedBox(
               width: 75,
               child: Text(
-                dateStr.substring(5), // Show only MM-DD
+                dateStr.substring(5),
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -651,7 +779,6 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                 DataCell(Text(studentId)),
                 DataCell(Text(student['name'] ?? 'Unknown')),
                 ...datesList.map((dateStr) {
-                  // Check if the studentId exists in attendanceData and if dateStr exists in the nested map
                   final status = attendanceData[studentId]?[dateStr] ?? '-';
                   return DataCell(
                     Center(
@@ -685,399 +812,141 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
     );
   }
 
-  Future<String?> _pickExportLocation(String fileName, String fileType) async {
-    String? savePath;
-    try {
-      String? result = await FilePicker.platform.saveFile(
-        dialogTitle: 'Select location to save $fileName',
-        fileName: fileName,
-        type: FileType.custom,
-        allowedExtensions: [fileType],
-      );
-      if (result != null && result.isNotEmpty) {
-        savePath = result;
-      }
-    } catch (e) {
-      // ignore
-    }
-    return savePath;
-  }
-
   Future<void> _exportToExcel() async {
-    try {
-      if (mounted) {
-        setState(() {
-          isLoading = true;
-        });
+    final excel = excel_lib.Excel.createExcel();
+    final sheet = excel['Sheet1'];
+
+    // Headers
+    List<String> headers = ['Roll No', 'Name', ...datesList.map((d) => d.substring(5)), 'Percentage'];
+    sheet.appendRow(headers.map((e) => excel_lib.TextCellValue(e)).toList());
+
+    final percentages = _calculateAttendancePercentages();
+
+    for (var student in students) {
+      List<excel_lib.CellValue> row = [];
+      String id = student['id'] ?? '';
+      row.add(excel_lib.TextCellValue(id));
+      row.add(excel_lib.TextCellValue(student['name'] ?? 'Unknown'));
+
+      for (var dateStr in datesList) {
+        row.add(excel_lib.TextCellValue(attendanceData[id]?[dateStr] ?? '-'));
       }
-      final excel_lib.Excel excel = excel_lib.Excel.createExcel();
-      final excel_lib.Sheet sheet = excel['Attendance Report'];
-      final percentages = _calculateAttendancePercentages();
+      
+      double pct = percentages[id] ?? 0.0;
+      row.add(excel_lib.TextCellValue('${pct.toStringAsFixed(1)}%'));
+      
+      sheet.appendRow(row);
+    }
 
-      // Add header
-      final headerCell = sheet.cell(
-        excel_lib.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
-      );
-      headerCell.value = excel_lib.TextCellValue('Attendance Report');
-
-      final courseCell = sheet.cell(
-        excel_lib.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1),
-      );
-      courseCell.value = excel_lib.TextCellValue(
-        '$selectedCourse - Section $selectedSection',
-      );
-
-      final periodCell = sheet.cell(
-        excel_lib.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2),
-      );
-      periodCell.value = excel_lib.TextCellValue(
-        'Period: ${DateFormat('yyyy-MM-dd').format(startDate)} to ${DateFormat('yyyy-MM-dd').format(endDate)}',
-      );
-
-      // Add table headers
-      final rollHeaderCell = sheet.cell(
-        excel_lib.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 4),
-      );
-      rollHeaderCell.value = excel_lib.TextCellValue('Roll');
-
-      final nameHeaderCell = sheet.cell(
-        excel_lib.CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 4),
-      );
-      nameHeaderCell.value = excel_lib.TextCellValue('Name');
-
-      // Add date headers
-      for (int i = 0; i < datesList.length; i++) {
-        final dateCell = sheet.cell(
-          excel_lib.CellIndex.indexByColumnRow(columnIndex: i + 2, rowIndex: 4),
-        );
-        dateCell.value = excel_lib.TextCellValue(datesList[i]);
-      }
-
-      // Add percentage header
-      final percentHeaderCell = sheet.cell(
-        excel_lib.CellIndex.indexByColumnRow(
-          columnIndex: datesList.length + 2,
-          rowIndex: 4,
-        ),
-      );
-      percentHeaderCell.value = excel_lib.TextCellValue('Attendance %');
-
-      // Add student data
-      for (int i = 0; i < students.length; i++) {
-        final student = students[i];
-
-        final rollCell = sheet.cell(
-          excel_lib.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: i + 5),
-        );
-        rollCell.value = excel_lib.TextCellValue(student['id']);
-
-        final nameCell = sheet.cell(
-          excel_lib.CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: i + 5),
-        );
-        nameCell.value = excel_lib.TextCellValue(student['name']);
-
-        for (int j = 0; j < datesList.length; j++) {
-          final dateStr = datesList[j];
-          final status = attendanceData[student['id']]![dateStr] ?? '-';
-
-          final statusCell = sheet.cell(
-            excel_lib.CellIndex.indexByColumnRow(
-              columnIndex: j + 2,
-              rowIndex: i + 5,
-            ),
-          );
-          statusCell.value = excel_lib.TextCellValue(status);
-        }
-
-        // Add percentage value
-        final percentCell = sheet.cell(
-          excel_lib.CellIndex.indexByColumnRow(
-            columnIndex: datesList.length + 2,
-            rowIndex: i + 5,
-          ),
-        );
-        final percentage = percentages[student['id']] ?? 0.0;
-        percentCell.value = excel_lib.TextCellValue(
-          '${percentage.toStringAsFixed(1)}%',
-        );
-      }
-
-      // Save the file
-      final fileName =
-          'attendance_report_${DateFormat('dd_MM_yyyy').format(DateTime.now())}.xlsx';
-      final fileBytes = excel.save();
+    // Save file
+    final List<int>? fileBytes = excel.save();
+    if (fileBytes != null) {
       if (kIsWeb) {
-        // Convert List<int> to Uint8List for web
-        final bytes = Uint8List.fromList(fileBytes!);
-        await saveFileWeb(
-          bytes,
-          fileName,
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        );
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text("Excel file downloaded!")));
-        }
-        return;
-      }
-      // Desktop/Mobile: use file picker (desktop) or save to documents directory (mobile)
-      String? path;
-      if (Platform.isAndroid || Platform.isIOS) {
-        final directory = await getApplicationDocumentsDirectory();
-        path = '${directory.path}/$fileName';
+         final webSaver = WebFileSaver();
+         await webSaver.saveFile(Uint8List.fromList(fileBytes), "attendance_report.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       } else {
-        path = await _pickExportLocation(fileName, 'xlsx');
-      }
-      if (path == null) {
-        if (mounted)
-          setState(() {
-            isLoading = false;
-          });
-        return;
-      }
-      final file = File(path);
-      await file.writeAsBytes(fileBytes!);
-      await OpenFile.open(path);
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Excel file saved to $path")));
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error exporting to Excel: $e")));
+        String? outputFile = await FilePicker.platform.saveFile(
+          dialogTitle: 'Save Excel File',
+          fileName: 'attendance_report.xlsx',
+          allowedExtensions: ['xlsx'],
+          type: FileType.custom,
+        );
+        if (outputFile != null) {
+           File(outputFile)
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(fileBytes);
+           OpenFile.open(outputFile);
+        }
       }
     }
   }
 
   Future<void> _exportToPdf() async {
-    try {
-      if (mounted) {
-        setState(() {
-          isLoading = true;
-        });
-      }
-
-      final pdf = pw.Document();
-
-      pdf.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4.landscape,
-          margin: const pw.EdgeInsets.all(32),
-          build: (pw.Context context) {
-            return [
-              pw.Header(
-                level: 0,
-                child: pw.Text(
-                  'Attendance Report',
-                  style: pw.TextStyle(
-                    fontSize: 20,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-              ),
-              pw.SizedBox(height: 8),
-              pw.Text(
-                '$selectedCourse - Section $selectedSection',
-                style: pw.TextStyle(
-                  fontSize: 16,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 4),
-              pw.Text(
-                'Period: ${DateFormat('yyyy-MM-dd').format(startDate)} to ${DateFormat('yyyy-MM-dd').format(endDate)}',
-                style: pw.TextStyle(fontSize: 12, color: PdfColors.grey),
-              ),
-              pw.SizedBox(height: 20),
-              _buildPdfTable(),
-            ];
-          },
-        ),
-      );
-
-      // Save the file
-      final fileName =
-          'attendance_report_${DateFormat('dd_MM_yyyy').format(DateTime.now())}.pdf';
-      final pdfBytes = await pdf.save();
-      if (kIsWeb) {
-        await saveFileWeb(pdfBytes, fileName, 'application/pdf');
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text("PDF file downloaded!")));
-        }
-        return;
-      }
-      // Desktop/Mobile: use file picker (desktop) or save to documents directory (mobile)
-      String? path;
-      if (Platform.isAndroid || Platform.isIOS) {
-        final directory = await getApplicationDocumentsDirectory();
-        path = '${directory.path}/$fileName';
-      } else {
-        path = await _pickExportLocation(fileName, 'pdf');
-      }
-      if (path == null) {
-        if (mounted)
-          setState(() {
-            isLoading = false;
-          });
-        return;
-      }
-      final file = File(path);
-      await file.writeAsBytes(pdfBytes);
-      await OpenFile.open(path);
-
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Pdf file saved to $path")));
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error exporting to Pdf: $e")));
-      }
-    }
-  }
-
-  pw.Table _buildPdfTable() {
+    final pdf = pw.Document();
     final percentages = _calculateAttendancePercentages();
+    
+    // Chunking data if too many columns (simple approach: just put all in one big table)
+    // For PDF, better to limit columns or use landscape.
+    
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4.landscape,
+        build: (pw.Context context) {
+          return [
+             pw.Header(level: 0, child: pw.Text("Attendance Report: $selectedCourse - $selectedSection")),
+             pw.Paragraph(text: "From ${DateFormat('yyyy-MM-dd').format(startDate)} to ${DateFormat('yyyy-MM-dd').format(endDate)}"),
+             pw.Table.fromTextArray(
+                context: context,
+                headers: ['Roll', 'Name', ...datesList.map((d) => d.substring(5)), '%'],
+                data: students.map((student) {
+                   String id = student['id'] ?? '';
+                   double pct = percentages[id] ?? 0.0;
+                   return [
+                     id,
+                     student['name'] ?? 'Unknown',
+                     ...datesList.map((d) => attendanceData[id]?[d] ?? '-'),
+                     '${pct.toStringAsFixed(1)}%'
+                   ];
+                }).toList(),
+             ),
+          ];
+        }
+      )
+    );
 
-    return pw.Table(
-      border: pw.TableBorder.all(color: PdfColors.grey300),
-      defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
-      children: [
-        // Header row
-        pw.TableRow(
-          decoration: const pw.BoxDecoration(color: PdfColors.grey200),
-          children: [
-            pw.Padding(
-              padding: const pw.EdgeInsets.all(4),
-              child: pw.Text(
-                'Roll',
-                style: pw.TextStyle(
-                  fontWeight: pw.FontWeight.bold,
-                  fontSize: 7,
-                ),
-              ),
-            ),
-            pw.Padding(
-              padding: const pw.EdgeInsets.all(4),
-              child: pw.Text(
-                'Name',
-                style: pw.TextStyle(
-                  fontWeight: pw.FontWeight.bold,
-                  fontSize: 7,
-                ),
-              ),
-            ),
-            ...datesList.map(
-              (dateStr) => pw.Padding(
-                padding: const pw.EdgeInsets.all(2),
-                child: pw.Text(
-                  dateStr,
-                  style: pw.TextStyle(
-                    fontWeight: pw.FontWeight.bold,
-                    fontSize: 6,
-                  ),
-                ),
-              ),
-            ),
-            pw.Padding(
-              padding: const pw.EdgeInsets.all(4),
-              child: pw.Text(
-                'Attendance %',
-                style: pw.TextStyle(
-                  fontWeight: pw.FontWeight.bold,
-                  fontSize: 7,
-                ),
-              ),
-            ),
-          ],
-        ),
-        // Data rows
-        ...students.map((student) {
-          final percentage = percentages[student['id']] ?? 0.0;
-          return pw.TableRow(
-            children: [
-              pw.Padding(
-                padding: const pw.EdgeInsets.all(2),
-                child: pw.Text(
-                  student['id'].toString().length > 4
-                      ? student['id'].toString().substring(0, 4) +
-                          '\n' +
-                          student['id'].toString().substring(4)
-                      : student['id'].toString(),
-                  style: pw.TextStyle(fontSize: 6),
-                  softWrap: true,
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.all(2),
-                child: pw.Text(
-                  student['name'],
-                  style: pw.TextStyle(fontSize: 6),
-                ),
-              ),
-              ...datesList.map((dateStr) {
-                final status = attendanceData[student['id']]![dateStr] ?? '-';
-                return pw.Padding(
-                  padding: const pw.EdgeInsets.all(1),
-                  child: pw.Center(
-                    child: pw.Text(
-                      status,
-                      style: pw.TextStyle(
-                        fontSize: 6,
-                        color:
-                            status == 'P'
-                                ? PdfColors.green
-                                : (status == 'A'
-                                    ? PdfColors.red
-                                    : PdfColors.grey),
-                        fontWeight: pw.FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              }),
-              pw.Padding(
-                padding: const pw.EdgeInsets.all(2),
-                child: pw.Text(
-                  '${percentage.toStringAsFixed(1)}%',
-                  style: pw.TextStyle(
-                    fontSize: 6,
-                    color: percentage >= 75 ? PdfColors.green : PdfColors.red,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          );
-        }),
-      ],
+    final Uint8List bytes = await pdf.save();
+
+     if (kIsWeb) {
+         final webSaver = WebFileSaver();
+         await webSaver.saveFile(bytes, "attendance_report.pdf", "application/pdf");
+      } else {
+        String? outputFile = await FilePicker.platform.saveFile(
+          dialogTitle: 'Save PDF File',
+          fileName: 'attendance_report.pdf',
+          allowedExtensions: ['pdf'],
+          type: FileType.custom,
+        );
+         if (outputFile != null) {
+           File(outputFile)
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(bytes);
+           OpenFile.open(outputFile);
+        }
+      }
+  }
+  
+  Future<void> _printReport() async {
+     final pdf = pw.Document();
+    final percentages = _calculateAttendancePercentages();
+    
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4.landscape,
+        build: (pw.Context context) {
+          return [
+             pw.Header(level: 0, child: pw.Text("Attendance Report: $selectedCourse - $selectedSection")),
+             pw.Paragraph(text: "From ${DateFormat('yyyy-MM-dd').format(startDate)} to ${DateFormat('yyyy-MM-dd').format(endDate)}"),
+             pw.Table.fromTextArray(
+                context: context,
+                headers: ['Roll', 'Name', ...datesList.map((d) => d.substring(5)), '%'],
+                data: students.map((student) {
+                   String id = student['id'] ?? '';
+                   double pct = percentages[id] ?? 0.0;
+                   return [
+                     id,
+                     student['name'] ?? 'Unknown',
+                     ...datesList.map((d) => attendanceData[id]?[d] ?? '-'),
+                     '${pct.toStringAsFixed(1)}%'
+                   ];
+                }).toList(),
+             ),
+          ];
+        }
+      )
+    );
+    
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
     );
   }
 }

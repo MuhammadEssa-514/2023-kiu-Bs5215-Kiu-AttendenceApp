@@ -29,7 +29,7 @@ Here is a preview of the main screens and features of the Muhammad Essa applicat
 |:---:|:---:|:---:|:---:|:---:|
 | ![Login Page](screenshots/login_screen.png) | ![Teacher Dashboard](screenshots/teacher_Dashboard.png) | ![Student Dashboard](screenshots/Student_Dashboard.png) | ![Marking Attendance](screenshots/Marking_Attendance.png) | ![Generate Reports](screenshots/Student_Report.png) |
 | **Previous Sessions** | **Edit Previous Sessions** | **Profile** | **Schedule** | **Forgot Password** |
-| ![Teacher Drawer](screenshots/Teacher_Profile_Setting.png) | ![Student Drawer](screenshots/student_drawer.png) | ![Manage Student](screenshots/Teacher_Manage_Student.png) | ![Edit profile](screenshots/student_profile.png) | ![Password change](screenshots/Teacher_Change%20pass.png)![print report](screenshots/print_report.png)![Database](screenshots/Forgot_Password_Page.jpg) |
+| ![Teacher Drawer](screenshots/Teacher_Profile_Setting.png) | ![Student Drawer](screenshots/student_drawer.png) | ![Manage Student](screenshots/Teacher_Manage_Student.png) | ![Edit profile](screenshots/student_profile.png) | ![Password change](screenshots/Teacher_Change%20pass.png)![print report](screenshots/print_report.png)![Database](screenshots/DataBase.png) |
 
 
 ## Tech Stack
@@ -129,8 +129,8 @@ See the [LICENSE](LICENSE) file for more details.
 
 **[Muhammad Essa](www.linkedin.com/in/muhammadessa514)**
 
-**ID: 2203146**
+**ID: 2023-kiu-Bs5215**
 
-**[CSE @ RUET](https://www.cse.ruet.ac.bd/)**
+**[BSCS & Sec A @ KIU](https://www.cse.ruet.ac.bd/)**
 
 **Email**: [siamnajat02@.com](mailto:siamnajat02@.com), [2203146@student.ruet.ac.bd](mailto:2203146@student.ruet.ac.bd)

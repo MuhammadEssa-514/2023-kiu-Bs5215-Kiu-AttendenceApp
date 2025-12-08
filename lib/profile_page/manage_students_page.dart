@@ -127,152 +127,253 @@ class _ManageStudentsPageState extends State<ManageStudentsPage> {
 
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-            title: const Text("Manage Students"),
-            backgroundColor: Colors.blueGrey,
-        ),
-        body: Padding(
+    return Scaffold(
+      backgroundColor: Colors.grey[50], // Lighter background
+      appBar: AppBar(
+        title: const Text("Manage Students", style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.blueGrey[800],
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          // 1. COMPACT DASHBOARD-STYLE HEADER / FORM
+          Container(
             padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                 BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))
+              ],
+              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+            ),
             child: Form(
-                key: _formKey,
-                child: Column(
-                    children: [
-                        Text(
-                            "Add New Student",
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueGrey),
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                            decoration: InputDecoration(
-                                labelText: "Student Name",
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.person),
-                            ),
-                            validator: (v) => v!.isEmpty ? "Enter Name" : null,
-                            onSaved: (v) => name = v!,
-                        ),
-                        const SizedBox(height: 10),
-                        TextFormField(
-                            decoration: InputDecoration(
-                                labelText: "Roll No",
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.numbers),
-                            ),
-                            validator: (v) => v!.isEmpty ? "Enter Roll No" : null,
-                            onSaved: (v) => rollNo = v!,
-                        ),
-                        const SizedBox(height: 10),
-                        DropdownButtonFormField<String>(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                   Text("Register New Student", style: TextStyle(color: Colors.blueGrey[800], fontSize: 18, fontWeight: FontWeight.bold)),
+                   const SizedBox(height: 15),
+                   
+                   // ROW 1: Name + Roll No (50% - 50%)
+                   Row(
+                     children: [
+                       Expanded(
+                         flex: 3,
+                         child: TextFormField(
+                           decoration: InputDecoration(
+                             labelText: "Student Name",
+                             prefixIcon: const Icon(Icons.person, size: 20),
+                             filled: true,
+                             fillColor: Colors.grey[100],
+                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                           ),
+                           validator: (v) => v!.isEmpty ? "Required" : null,
+                           onSaved: (v) => name = v!,
+                         ),
+                       ),
+                       const SizedBox(width: 10),
+                       Expanded(
+                         flex: 2,
+                         child: TextFormField(
+                           decoration: InputDecoration(
+                             labelText: "Roll No",
+                             prefixIcon: const Icon(Icons.numbers, size: 20),
+                             filled: true,
+                             fillColor: Colors.grey[100],
+                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                           ),
+                           validator: (v) => v!.isEmpty ? "Req" : null,
+                           onSaved: (v) => rollNo = v!,
+                           keyboardType: TextInputType.number,
+                         ),
+                       ),
+                     ],
+                   ),
+                   
+                   const SizedBox(height: 10),
+                   
+                   // ROW 2: Section + Course (30% - 70%)
+                   Row(
+                     children: [
+                        Expanded(
+                          flex: 2,
+                          child: DropdownButtonFormField<String>(
                             value: section,
                             decoration: InputDecoration(
-                                labelText: "Section",
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.class_),
+                              labelText: "Sec",
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                             ),
-                            items: sections.map((s) => DropdownMenuItem(value: s, child: Text("Section $s"))).toList(),
+                            items: sections.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
                             onChanged: (v) => setState(() => section = v!),
-                        ),
-                        const SizedBox(height: 10),
-                        DropdownButtonFormField<String>(
-                            value: selectedCourse,
-                            decoration: InputDecoration(
-                                labelText: "Course",
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.book),
-                            ),
-                            items: courses.map((c) => DropdownMenuItem(value: c, child: Text(c, overflow: TextOverflow.ellipsis))).toList(),
-                            onChanged: (v) => setState(() => selectedCourse = v),
-                            isExpanded: true,
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                                onPressed: isLoading ? null : _addStudent,
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey),
-                                child: isLoading 
-                                    ? CircularProgressIndicator(color: Colors.white) 
-                                    : Text("Add Student", style: TextStyle(color: Colors.white, fontSize: 18)),
-                            ),
-                        ),
-                        const SizedBox(height: 30),
-                        const Divider(),
-                        Text(
-                          "All Registered Students",
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueGrey),
-                        ),
-                        const SizedBox(height: 10),
-                        Expanded(
-                            child: StreamBuilder<QuerySnapshot>(
-                              stream: FirebaseFirestore.instance
-                                  .collection('students')
-                                  .orderBy('createdAt', descending: true)
-                                  .snapshots(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const Center(child: CircularProgressIndicator());
-                              }
-                              
-                              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                                return const Center(child: Text("No students found in this section."));
-                              }
-
-                              final docs = snapshot.data!.docs;
-                              // Client side sort (Mixed String/Int safety)
-                              docs.sort((a, b) {
-                                 final d1 = a.data() as Map<String, dynamic>;
-                                 final d2 = b.data() as Map<String, dynamic>;
-                                 
-                                 var roll1 = d1['roll'];
-                                 var roll2 = d2['roll'];
-                                 
-                                 // Try to compare as numbers if possible
-                                 int? i1 = int.tryParse(roll1.toString());
-                                 int? i2 = int.tryParse(roll2.toString());
-                                 
-                                 if (i1 != null && i2 != null) {
-                                   return i1.compareTo(i2);
-                                 }
-                                 
-                                 // Fallback to string comparison
-                                 return roll1.toString().compareTo(roll2.toString());
-                              });
-                              
-                              return ListView.builder(
-                                itemCount: docs.length,
-                                itemBuilder: (context, index) {
-                                  final data = docs[index].data() as Map<String, dynamic>;
-                                  final id = docs[index].id;
-                                  return Card(
-                                    elevation: 2,
-                                    margin: const EdgeInsets.symmetric(vertical: 4),
-                                    child: ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundColor: Colors.blueGrey,
-                                        child: Text(
-                                          data['roll']?.toString() ?? '0',
-                                          style: const TextStyle(color: Colors.white, fontSize: 12),
-                                        ),
-                                      ),
-                                      title: Text(data['name'] ?? 'Unknown'),
-                                      subtitle: Text("Roll No: ${data['roll']}"),
-                                      trailing: IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () => _deleteStudent(id),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
                           ),
                         ),
-                    ],
-                ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 4,
+                          child: DropdownButtonFormField<String>(
+                            value: selectedCourse,
+                            decoration: InputDecoration(
+                              labelText: "Select Course",
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                            ),
+                            items: courses.map((c) => DropdownMenuItem(value: c, child: Text(c, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13)))).toList(),
+                            onChanged: (v) => setState(() => selectedCourse = v),
+                            isExpanded: true,
+                          ),
+                        ),
+                     ],
+                   ),
+                   
+                   const SizedBox(height: 15),
+                   
+                   SizedBox(
+                     height: 45,
+                     child: ElevatedButton.icon(
+                       onPressed: isLoading ? null : _addStudent,
+                       style: ElevatedButton.styleFrom(
+                         backgroundColor: Colors.blueGrey[700],
+                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                         elevation: 2,
+                       ),
+                       icon: isLoading ? const SizedBox() : const Icon(Icons.add_circle, color: Colors.white),
+                       label: isLoading 
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Text("Add Student to Database", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                     ),
+                   ),
+                ],
+              ),
             ),
-        ),
-      );
+          ),
+          
+          const SizedBox(height: 10),
+          
+          // 2. SCROLLABLE LIST HEADLINE
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Registered Students", style: TextStyle(color: Colors.blueGrey[800], fontWeight: FontWeight.bold, fontSize: 16)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.blueGrey[100], borderRadius: BorderRadius.circular(8)),
+                  child: const Text("Sort: Newest", style: TextStyle(fontSize: 10, color: Colors.blueGrey)),
+                )
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 5),
+
+          // 3. EXPANDED LIST
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('students')
+                  .orderBy('createdAt', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.school, size: 60, color: Colors.grey[300]),
+                        const SizedBox(height: 10),
+                        Text("No students added yet.", style: TextStyle(color: Colors.grey[400])),
+                      ],
+                    )
+                  );
+                }
+
+                // Client-side sort if needed, or use stream order
+                final docs = snapshot.data!.docs;
+                
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    final docId = docs[index].id;
+                    
+                    return Dismissible(
+                      key: Key(docId),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        padding: const EdgeInsets.only(right: 20),
+                        decoration: BoxDecoration(color: Colors.red[100], borderRadius: BorderRadius.circular(12)),
+                        alignment: Alignment.centerRight,
+                        child: const Icon(Icons.delete, color: Colors.red),
+                      ),
+                      confirmDismiss: (dir) async {
+                         return await showDialog(
+                           context: context,
+                           builder: (ctx) => AlertDialog(
+                             title: const Text("Delete Student?"),
+                             content: Text("Are you sure you want to delete ${data['name']}?"),
+                             actions: [
+                               TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancel")),
+                               TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("Delete", style: TextStyle(color: Colors.red))),
+                             ],
+                           )
+                         );
+                      },
+                      onDismissed: (_) => _deleteStudent(docId),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.08), blurRadius: 5, offset: const Offset(0, 2))]
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.blueGrey[50],
+                            foregroundColor: Colors.blueGrey[700],
+                            child: Text(data['section'] ?? "?", style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          title: Text(data['name'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                          subtitle: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(color: Colors.blueGrey[50], borderRadius: BorderRadius.circular(4)),
+                                child: Text("Roll: ${data['roll']}", style: TextStyle(fontSize: 11, color: Colors.blueGrey[800], fontWeight: FontWeight.bold)),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(data['course'] ?? "", overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: Colors.grey))),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 20),
+                            onPressed: () => _deleteStudent(docId), // Trigger delete manually too
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

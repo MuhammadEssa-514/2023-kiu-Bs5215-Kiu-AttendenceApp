@@ -28,7 +28,7 @@ Here is a preview of the main screens and features of the Muhammad Essa applicat
 | Login | Teacher Dashboard | Student Dashboard | Take Attendance | Generate Reports |
 |:---:|:---:|:---:|:---:|:---:|
 | ![Login Page](screenshots/login_screen.png) | ![Teacher Dashboard](screenshots/teacher_Dashboard.png) | ![Student Dashboard](screenshots/Student_Dashboard.png) | ![Marking Attendance](screenshots/Marking_Attendance.png) | ![Generate Reports](screenshots/Student_Report.png) |
-| **Previous Sessions** | **Edit Previous Sessions** | **Profile** | **Schedule** | **Forgot Password** |
+| **Teacher Drawer** | **Student Drawer** | **Manage Student** | **Edit profile** | **Forgot Password** |
 | ![Teacher Drawer](screenshots/Teacher_Profile_Setting.png) | ![Student Drawer](screenshots/student_drawer.png) | ![Manage Student](screenshots/Teacher_Manage_Student.png) | ![Edit profile](screenshots/student_profile.png) | ![Password change](screenshots/Teacher_Change%20pass.png)![print report](screenshots/print_report.png)![Database](screenshots/DataBase.png) |
 
 
@@ -83,18 +83,6 @@ Once everything is set up, start the app on your connected device or emulator:
 flutter run
 ```
 
-### Troubleshooting
-
-- Ensure your Flutter SDK version matches the project requirement (**`sdk: ^3.7.0`**)
-- If you encounter Firebase-related build errors:
-    - Verify that `google-services.json` is correctly placed inside `android/app/`
-    - Verify that `GoogleService-Info.plist` is correctly placed inside `ios/Runner/`
-- Run the following command to check if your development environment is properly set up:
-
-```bash
- flutter doctor
-```
-
 ## Contributing
 
 If you'd like to contribute:
@@ -123,7 +111,7 @@ See the [LICENSE](LICENSE) file for more details.
 
 - Thanks to **Flutter** for the awesome UI framework
 - Thanks to **Firebase** for providing scalable backend services
-- Special thanks to **[Prof. Dr. Boshir Ahmed](https://www.linkedin.com/in/dr-boshir-ahmed-b830621b4)** sir for guidance and supervision
+- Special thanks to **[Prof.Mujahid Hussain](https://muhammadessa-514.github.io/My-Personal-Portfolio/)** sir for guidance and supervision
 
 ## Contact
 
@@ -133,4 +121,4 @@ See the [LICENSE](LICENSE) file for more details.
 
 **[BSCS & Sec A @ KIU](https://www.cse.ruet.ac.bd/)**
 
-**Email**: [siamnajat02@.com](mailto:siamnajat02@.com), [2203146@student.ruet.ac.bd](mailto:2203146@student.ruet.ac.bd)
+**Email**: [muhammadessa1514@gmail.com](mailto:muhammadessa1514@gmail.com), [mujahidh360@gmail.com](mailto:mujahidh360@gmail.com)

@@ -119,6 +119,6 @@ See the [LICENSE](LICENSE) file for more details.
 
 **ID: 2023-kiu-Bs5215**
 
-**[BSCS & Sec A @ KIU](https://www.cse.ruet.ac.bd/)**
+**[BSCS & Sec A @ KIU](https://www.kiu.edu.pk/)**
 
 **Email**: [muhammadessa1514@gmail.com](mailto:muhammadessa1514@gmail.com), [mujahidh360@gmail.com](mailto:mujahidh360@gmail.com)

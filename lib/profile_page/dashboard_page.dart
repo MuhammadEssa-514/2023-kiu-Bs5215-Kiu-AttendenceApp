@@ -258,32 +258,40 @@ class _DashboardPageState extends State<DashboardPage> {
       backgroundColor: Colors.white,
       backgroundImage: _getAvatarImage(),
       child: _getAvatarImage() == null
-          ? Text(_currentName.isNotEmpty ? _currentName[0].toUpperCase() : "U", style: TextStyle(color: Colors.blueGrey[800], fontWeight: FontWeight.bold))
+          ? Text(_currentName.isNotEmpty ? _currentName[0].toUpperCase() : "U", style: TextStyle(color: Colors.blueGrey[600], fontWeight: FontWeight.bold))
           : null,
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isTeacher ? "Teacher Dashboard" : "Student Dashboard"),
-        backgroundColor: Colors.blueGrey[800],
-        elevation: 0,
-        actions: [
-          GestureDetector(
-             onTap: () => _showProfileDialog(context),
-             child: Padding(
-               padding: const EdgeInsets.only(right: 16.0),
-               child: avatarWidget,
-             ),
-          ),
-        ],
+  appBar: AppBar(
+  title: Text(
+    isTeacher ? "Teacher Dashboard" : "Student Dashboard",
+    style: TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.bold, // optional
+    ),
+  ),
+  iconTheme: IconThemeData(color: Colors.white),
+  backgroundColor: Colors.blueGrey[600],
+  elevation: 0,
+  actions: [
+    GestureDetector(
+      onTap: () => _showProfileDialog(context),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 16.0),
+        child: avatarWidget,
       ),
+    ),
+  ],
+),
+
       // PROFESSIONAL DRAWER
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              decoration: BoxDecoration(color: Colors.blueGrey[800]),
+              decoration: BoxDecoration(color: Colors.blueGrey[600]),
               accountName: Text(_currentName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               accountEmail: Text(widget.email),
               currentAccountPicture: GestureDetector(
@@ -294,7 +302,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     child: _isUploading 
                        ? const CircularProgressIndicator()
                        : (_getAvatarImage() == null
-                        ? Text(_currentName.isNotEmpty ? _currentName[0].toUpperCase() : "U", style: TextStyle(fontSize: 30, color: Colors.blueGrey[800]))
+                        ? Text(_currentName.isNotEmpty ? _currentName[0].toUpperCase() : "U", style: TextStyle(fontSize: 30, color: Colors.blueGrey[900]))
                         : null),
                   ),
               ),
@@ -781,7 +789,7 @@ class _HoverCardState extends State<HoverCard> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold, 
                   fontSize: 14, // Smaller text
-                  color: _isHovered ? Colors.blueGrey[800] : Colors.blueGrey
+                  color: _isHovered ? Colors.blueGrey[600] : Colors.blueGrey
                 )
               ),
             ],

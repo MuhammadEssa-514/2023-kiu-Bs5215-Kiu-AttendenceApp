@@ -129,12 +129,17 @@ class _ManageStudentsPageState extends State<ManageStudentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50], // Lighter background
-      appBar: AppBar(
-        title: const Text("Manage Students", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.blueGrey[800],
-        elevation: 0,
-        centerTitle: true,
-      ),
+     appBar: AppBar(
+  title: const Text(
+    "Manage Students",
+    style: TextStyle(color: Colors.white),
+  ),
+  backgroundColor: Colors.blueGrey[800],
+  elevation: 0,
+  centerTitle: true,
+  iconTheme: const IconThemeData(color: Colors.white), // THIS MAKES BACK ARROW WHITE
+),
+      
       body: Column(
         children: [
           // 1. COMPACT DASHBOARD-STYLE HEADER / FORM

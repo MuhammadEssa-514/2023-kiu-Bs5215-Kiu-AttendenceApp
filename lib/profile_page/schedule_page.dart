@@ -7,7 +7,7 @@ class SchedulePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Schedule"), backgroundColor: Colors.blueGrey),
+      appBar: AppBar(title: Text("Schedule", style: const TextStyle(color: Colors.white)), backgroundColor: Colors.blueGrey,iconTheme: const IconThemeData(color: Colors.white),),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

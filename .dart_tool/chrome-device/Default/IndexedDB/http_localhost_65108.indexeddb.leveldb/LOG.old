@@ -1,0 +1,18 @@
+2025/12/08-16:34:21.090 22ec Creating DB C:\Users\COMPLU~1\AppData\Local\Temp\flutter_tools.fa633a17\flutter_tools_chrome_device.87e799df\Default\IndexedDB\http_localhost_65108.indexeddb.leveldb since it was missing.
+2025/12/08-16:34:21.095 22ec Reusing MANIFEST C:\Users\COMPLU~1\AppData\Local\Temp\flutter_tools.fa633a17\flutter_tools_chrome_device.87e799df\Default\IndexedDB\http_localhost_65108.indexeddb.leveldb/MANIFEST-000001
+2025/12/08-16:34:21.107 46f8 Level-0 table #5: started
+2025/12/08-16:34:21.111 46f8 Level-0 table #5: 1264 bytes OK
+2025/12/08-16:34:21.112 46f8 Delete type=0 #3
+2025/12/08-16:34:21.113 46f8 Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/12/08-17:37:19.457 24c0 Level-0 table #7: started
+2025/12/08-17:37:19.464 24c0 Level-0 table #7: 22530 bytes OK
+2025/12/08-17:37:19.468 24c0 Delete type=0 #4
+2025/12/08-17:37:19.469 24c0 Manual compaction at level-0 from (begin) .. (end); will stop at (end)
+2025/12/08-17:37:19.470 24c0 Manual compaction at level-1 from (begin) .. (end); will stop at '\x00\x03\x01\x02\x013\x00[\x00D\x00E\x00F\x00A\x00U\x00L\x00T\x00]\x00!\x001\x00:\x005\x006\x009\x007\x007\x005\x006\x000\x001\x006\x003\x002\x00:\x00w\x00e\x00b\x00:\x000\x008\x009\x003\x001\x005\x002\x004\x000\x001\x00b\x008\x000\x00d\x001\x009\x007\x000\x00d\x00d\x008\x005' @ 122 : 1
+2025/12/08-17:37:19.470 24c0 Compacting 1@1 + 1@2 files
+2025/12/08-17:37:19.475 24c0 Generated table #8@1: 36 keys, 2881 bytes
+2025/12/08-17:37:19.476 24c0 Compacted 1@1 + 1@2 files => 2881 bytes
+2025/12/08-17:37:19.479 24c0 compacted to: files[ 0 0 1 0 0 0 0 ]
+2025/12/08-17:37:19.480 24c0 Delete type=2 #5
+2025/12/08-17:37:19.481 24c0 Delete type=2 #7
+2025/12/08-17:37:19.483 24c0 Manual compaction at level-1 from '\x00\x03\x01\x02\x013\x00[\x00D\x00E\x00F\x00A\x00U\x00L\x00T\x00]\x00!\x001\x00:\x005\x006\x009\x007\x007\x005\x006\x000\x001\x006\x003\x002\x00:\x00w\x00e\x00b\x00:\x000\x008\x009\x003\x001\x005\x002\x004\x000\x001\x00b\x008\x000\x00d\x001\x009\x007\x000\x00d\x00d\x008\x005' @ 122 : 1 .. (end); will stop at (end)

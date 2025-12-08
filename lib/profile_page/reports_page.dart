@@ -151,8 +151,11 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Attendance Reports"),
+        title: const Text("Attendance Reports", style: const TextStyle(
+            color: Colors.white,
+          ),),
         backgroundColor: Colors.blueGrey,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SafeArea(
         child: Center(

@@ -54,8 +54,12 @@ class _AttendancePageState extends State<AttendancePage> {
           isEditingPreviousSession
               ? "Edit Previous Attendance"
               : "Attendance System",
+          style: const TextStyle(
+            color: Colors.white,
+          ),
         ),
         backgroundColor: Colors.blueGrey,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           // Add a button to access previous sessions
           if (!isEditingPreviousSession)
@@ -68,6 +72,7 @@ class _AttendancePageState extends State<AttendancePage> {
           if (isEditingPreviousSession)
             IconButton(
               icon: Icon(Icons.arrow_back),
+              color: Colors.white,
               onPressed: () {
                 setState(() {
                   isEditingPreviousSession = false;

@@ -40,6 +40,8 @@ flutter:
 
   assets:
     - assets/images/kiulogo.png
+    - assets/images/bgglogin.jpeg
+    - assets/images/bglogin.jpeg
     - assets/icon.png
 
 flutter_icons:

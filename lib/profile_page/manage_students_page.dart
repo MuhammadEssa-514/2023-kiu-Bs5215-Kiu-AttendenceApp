@@ -20,11 +20,11 @@ class _ManageStudentsPageState extends State<ManageStudentsPage> {
   
   final List<String> sections = ["A", "B", "C"];
   final List<String> courses = [
-    "Digital Logic Design",
-    "Discrete Mathematics",
-    "Electrical and Electronic Engineering",
-    "Humanities",
-    "Mathematics",
+    "Mobile App",
+    "Web Technologies",
+    "Computer Architecture",
+    "HCI and Graphics",
+    "Introduction to Management",
   ];
 
   // Delete student

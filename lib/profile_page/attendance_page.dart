@@ -22,11 +22,11 @@ class _AttendancePageState extends State<AttendancePage> {
   bool isEditingPreviousSession = false;
 
   final List<String> courses = [
-    "Digital Logic Design",
-    "Discrete Mathematics",
-    "Electrical and Electronic Engineering",
-    "Humanities",
-    "Mathematics",
+    "Mobile App",
+    "Web Technologies",
+    "Computer Architecture",
+    "HCI and Graphics",
+    "Introduction to Management",
   ];
 
   final List<String> sections = ["A", "B", "C"];

@@ -1,8 +1,7 @@
-# Muhammad Essa - Student Attendance Management System
+# Muhammad Essa-5215 - Student Attendance Management System
 
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-Muhammad Essa is a cross-platform mobile application built using **Flutter** and **Firebase**, designed to help teachers manage student attendance efficiently. Initially developed for the **CSE-22 Series** at **Karakoram international university gilgit** under the guidance of **[Prof Mushaid Hussain]**, this app aims to streamline academic attendance management through a simple and scalable system.
+Muhammad Essa is a cross-platform mobile application built using **Flutter** and **Firebase**, designed to help teachers manage student attendance efficiently. Initially developed for the **BSCS section A** at **Karakoram international university gilgit** under the guidance of **[Prof Mushaid Hussain]**, this app aims to streamline academic attendance management through a simple and scalable system.
 
 ---
 
@@ -26,11 +25,11 @@ Muhammad Essa is a cross-platform mobile application built using **Flutter** and
 
 Here is a preview of the main screens and features of the Muhammad Essa application.
 
-| Signup | Login | Dashboard | Take Attendance | Generate Reports |
+| Login | Teacher Dashboard | Student Dashboard | Take Attendance | Generate Reports |
 |:---:|:---:|:---:|:---:|:---:|
-| ![Signup Page](screenshots/Signup_Page.jpg) | ![Login Page](screenshots/Login_Page.jpg) | ![Dashboard Page](screenshots/Dashboard_Page.jpg) | ![Attendance Page](screenshots/Attendance_Page.jpg) | ![Reports Page](screenshots/Reports_Page.jpg) |
+| ![Login Page](screenshots/login_screen.png) | ![Teacher Dashboard](screenshots/teacher_Dashboard.png) | ![Student Dashboard](screenshots/Student_Dashboard.png) | ![Marking Attendance](screenshots/Marking_Attendance.png) | ![Generate Reports](screenshots/Student_Report.png) |
 | **Previous Sessions** | **Edit Previous Sessions** | **Profile** | **Schedule** | **Forgot Password** |
-| ![Previous Sessions Page](screenshots/Previous_Sessions_Page.jpg) | ![Edit Previous Attendance Page](screenshots/Edit_Previous_Attendance_Page.jpg) | ![Profile Page](screenshots/Profile_Page.jpg) | ![Schedule Page](screenshots/Schedule_Page.jpg) | ![Forgot Password Page](screenshots/Forgot_Password_Page.jpg) |
+| ![Teacher Drawer](screenshots/Teacher_Profile_Setting.png) | ![Student Drawer](screenshots/student_drawer.png) | ![Manage Student](screenshots/Teacher_Manage_Student.png) | ![Edit profile](screenshots/student_profile.png) | ![Password change](screenshots/Teacher_Change%20pass.png)![print report](screenshots/print_report.png)![Database](screenshots/Forgot_Password_Page.jpg) |
 
 
 ## Tech Stack
@@ -59,9 +58,6 @@ Here is a preview of the main screens and features of the Muhammad Essa applicat
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/najat-ttt/Muhammad Essa_Basic.git
-cd Muhammad Essa_Basic
 
 # Install dependencies
 flutter pub get

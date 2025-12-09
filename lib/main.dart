@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io' show Platform;
 import 'login_page/login_page.dart';
 import 'profile_page/dashboard_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,33 +86,40 @@ class LoginPageWrapper extends StatelessWidget {
   }
 
   Future<Map<String, String?>> _fetchUserDataRobust(User user) async {
-      try {
-          // 1. Try Firestore
-          final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-          if (doc.exists) {
-              final data = doc.data() as Map<String, dynamic>;
-              String role = data['role']?.toString().toLowerCase().trim() ?? 'student';
-              String? roll = data['rollno']?.toString();
-              
-              // Cache locally
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('last_uid_${user.uid}_role', role);
-              if (roll != null) await prefs.setString('last_uid_${user.uid}_roll', roll);
-              
-              return {'role': role, 'rollno': roll};
-          }
-      } catch (e) {
-          print("Firestore user fetch failed (Offline?): $e");
+    try {
+      // 1. Try Firestore
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        String role =
+            data['role']?.toString().toLowerCase().trim() ?? 'student';
+        String? roll = data['rollno']?.toString();
+
+        // Cache locally
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('last_uid_${user.uid}_role', role);
+        if (roll != null) {
+          await prefs.setString('last_uid_${user.uid}_roll', roll);
+        }
+
+        return {'role': role, 'rollno': roll};
       }
-      
-      // 2. Fallback to Local Cache
-      try {
-          final prefs = await SharedPreferences.getInstance();
-          String role = prefs.getString('last_uid_${user.uid}_role') ?? 'student';
-          String? roll = prefs.getString('last_uid_${user.uid}_roll');
-          return {'role': role, 'rollno': roll};
-      } catch (e) {
-         return {'role': 'student', 'rollno': null};
-      }
+    } catch (e) {
+      print("Firestore user fetch failed (Offline?): $e");
+    }
+
+    // 2. Fallback to Local Cache
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String role = prefs.getString('last_uid_${user.uid}_role') ?? 'student';
+      String? roll = prefs.getString('last_uid_${user.uid}_roll');
+      return {'role': role, 'rollno': roll};
+    } catch (e) {
+      return {'role': 'student', 'rollno': null};
+    }
   }
 }

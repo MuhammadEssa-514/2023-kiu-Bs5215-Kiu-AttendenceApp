@@ -42,7 +42,7 @@ flutter:
     - assets/images/kiulogo.png
     - assets/images/bgglogin.jpeg
     - assets/images/bglogin.jpeg
-    - assets/icon.png
+    # - assets/icon.png
 
 flutter_icons:
   android: true

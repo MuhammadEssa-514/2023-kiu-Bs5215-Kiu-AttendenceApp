@@ -27,7 +27,8 @@ Here is a preview of the main screens and features of the Muhammad Essa applicat
 
 | Login | Teacher Dashboard | Student Dashboard | Take Attendance | Generate Reports |
 |:---:|:---:|:---:|:---:|:---:|
-| ![Login Page](screenshots/login_screen.png) | ![Teacher Dashboard](screenshots/teacher_Dashboard.png) | ![Student Dashboard](screenshots/Student_Dashboard.png) | ![Marking Attendance](screenshots/Marking_Attendance.png) | ![Generate Reports](screenshots/Student_Report.png) |
+| ![Login Page](screenshots/login_screen.jpg) | ![Teacher Dashboard](screenshots/teacher_dashboard.jpg) | ![Student Dashboard](screenshots/student_dashboard.jpg) | ![Marking Attendance](screenshots/teacher_mark_attendance.jpg) | ![Generate Reports](screenshots/student_attendance_report.jpg) |
+
 | **Teacher Drawer** | **Student Drawer** | **Manage Student** | **Edit profile** | **Password change** |
 | ![Teacher Drawer](screenshots/Teacher_Profile_Setting.png) | ![Student Drawer](screenshots/student_drawer.png) | ![Manage Student](screenshots/Teacher_Manage_Student.png) | ![Edit profile](screenshots/student_profile.png) | ![Password change](screenshots/Teacher_Change%20pass.png)![print report](screenshots/print_report.png)![Database](screenshots/DataBase.png) |
 

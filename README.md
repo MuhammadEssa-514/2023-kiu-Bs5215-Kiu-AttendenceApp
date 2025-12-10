@@ -25,12 +25,23 @@ Muhammad Essa is a cross-platform mobile application built using **Flutter** and
 
 Here is a preview of the main screens and features of the Muhammad Essa application.
 
-| Login | Teacher Dashboard | Student Dashboard | Take Attendance | Generate Reports |
-|:---:|:---:|:---:|:---:|:---:|
-| ![Login Page](screenshots/login_screen.jpg) | ![Teacher Dashboard](screenshots/teacher_dashboard.jpg) | ![Student Dashboard](screenshots/student_dashboard.jpg) | ![Marking Attendance](screenshots/teacher_mark_attendance.jpg) | ![Generate Reports](screenshots/student_attendance_report.jpg) |
+| Login | Teacher Dashboard | Teacher Drawer | Take Attendance | Manage Students | Tea generate Rep |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![Login Page](screenshots/login_screen.jpg) | ![Teacher Dashboard](screenshots/teacher_dashboard.jpg) | ![Teacher Drawer](screenshots/teacher_drawer.jpg) | ![Take Attendance](screenshots/teacher_mark_attendance.jpg) | ![Manage Students](screenshots/teacher_manage-student.jpg) ![Tea generate Rep](screenshots/teacher-attendance_report.jpg)|
 
-| **Teacher Drawer** | **Student Drawer** | **Manage Student** | **Edit profile** | **Password change** |
-| ![Teacher Drawer](screenshots/Teacher_Profile_Setting.png) | ![Student Drawer](screenshots/student_drawer.png) | ![Manage Student](screenshots/Teacher_Manage_Student.png) | ![Edit profile](screenshots/student_profile.png) | ![Password change](screenshots/Teacher_Change%20pass.png)![print report](screenshots/print_report.png)![Database](screenshots/DataBase.png) |
+| Student Dashboard | Student Drawer | Student Gen Repo | Student Profile | Teacher Profile | Print Report |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![Student Dashboard](screenshots/student_dashboard.jpg) | ![Student Drawer](screenshots/student_drawer.jpg) | ![Student Gen Repo](screenshots/student_attendance_report.jpg) | ![Student Profile](screenshots/student_profile.jpg) | ![Teacher Profile](screenshots/teacher_profile.jpg) ![Print Report](screenshots/print_report.jpg)|
+
+| Change Password | Login Screen in Desktop |
+|:---:|:---:|
+| ![Change Password](screenshots/Change_password.png) | ![Login Screen in Desktop](screenshots/login_in_Desktop.png) |
+
+<!-- | **Teacher Drawer** | **Student Drawer** | **Manage Student** | **Edit profile** | **Teacher Profile** |
+| ![Teacher Drawer](screenshots/teacher_drawer.jpg) | ![Student Drawer](screenshots/student_drawer.jpg) | ![Manage Student](screenshots/teacher_manage-student.jpg) | ![Edit profile](screenshots/student_profile.jpg) | ![Teacher Profile](screenshots/Teacher_Change%20pass.png) |
+
+| **Teacher Drawer** | **Student Drawer** | **Manage Student** | 
+| ![Teacher Drawer](screenshots/teacher_drawer.jpg) | ![Student Drawer](screenshots/student_drawer.jpg) | ![Manage Student](screenshots/teacher_manage-student.jpg) | -->
 
 
 ## Tech Stack

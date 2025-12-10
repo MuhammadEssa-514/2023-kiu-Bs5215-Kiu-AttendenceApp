@@ -5,7 +5,7 @@ Muhammad Essa is a cross-platform mobile application built using **Flutter** and
 
 ---
 
-**Muhammad Essa** is a mobile application designed for managing student attendance in educational institutions. It supports teachers' login and offers features for attendance tracking. Built with Flutter and Firebase, this system helps streamline attendance management.
+**KIU smart hazrii** is a mobile application designed for managing student attendance in educational institutions. It supports teachers' login and offers features for attendance tracking. Built with Flutter and Firebase, this system helps streamline attendance management.
 
 ## Features
 
@@ -27,11 +27,11 @@ Here is a preview of the main screens and features of the Muhammad Essa applicat
 
 | Login | Teacher Dashboard | Teacher Drawer | Take Attendance | Manage Students | Tea generate Rep |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| ![Login Page](screenshots/login_screen.jpg) | ![Teacher Dashboard](screenshots/teacher_dashboard.jpg) | ![Teacher Drawer](screenshots/teacher_drawer.jpg) | ![Take Attendance](screenshots/teacher_mark_attendance.jpg) | ![Manage Students](screenshots/teacher_manage-student.jpg) ![Tea generate Rep](screenshots/teacher-attendance_report.jpg)|
+| ![Login Page](screenshots/login_screen.jpg) | ![Teacher Dashboard](screenshots/teacher_dashboard.jpg) | ![Teacher Drawer](screenshots/teacher_drawer.jpg) | ![Take Attendance](screenshots/teacher_mark_attendance.jpg) | ![Manage Students](screenshots/teacher_manage-student.jpg) | ![Tea generate Rep](screenshots/teacher-attendance_report.jpg)|
 
 | Student Dashboard | Student Drawer | Student Gen Repo | Student Profile | Teacher Profile | Print Report |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| ![Student Dashboard](screenshots/student_dashboard.jpg) | ![Student Drawer](screenshots/student_drawer.jpg) | ![Student Gen Repo](screenshots/student_attendance_report.jpg) | ![Student Profile](screenshots/student_profile.jpg) | ![Teacher Profile](screenshots/teacher_profile.jpg) ![Print Report](screenshots/print_report.jpg)|
+| ![Student Dashboard](screenshots/student_dashboard.jpg) | ![Student Drawer](screenshots/student_drawer.jpg) | ![Student Gen Repo](screenshots/student_attendance_report.jpg) | ![Student Profile](screenshots/student_profile.jpg) | ![Teacher Profile](screenshots/teacher_profile.jpg) | ![Print Report](screenshots/print_report.jpg)|
 
 | Change Password | Login Screen in Desktop |
 |:---:|:---:|
